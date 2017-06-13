@@ -54,12 +54,18 @@ module Expenses
 
       expense_data = Hash.new
 
-      print "Date (#{Date.today.iso8601}): "
+      print "Date (#{Date.today.iso8601} or input date or use -1 for yesterday etc): "
       date = STDIN.readline.chomp
-      date = Date.today.iso8601 if date.empty?
+      date = if date.empty?
+        Date.today.iso8601
+      elsif date.match(/^-(\d)/)
+        (Date.today - $1.to_i).iso8601
+      else
+        date
+      end
+
       abort "Incorrect format." unless date.match(/^\d{4}-\d{2}-\d{2}$/)
       expense_data[:date] = Date.parse(date)
-      # TODO: -1 for yesterday etc.
 
       print "Types (one of #{self.show_label_for_self_or_retrieve_by_index(Expense::TYPES)}): "
       expense_data[:type] = self.self_or_retrieve_by_index(Expense::TYPES, STDIN.readline.chomp)
@@ -98,10 +104,9 @@ module Expenses
 
       expenses << Expense.new(**expense_data)
 
-      # We cannot just add, since when we're offline, we save expenses without
-      # their total converted to USD/EUR.
+      final_json = JSON.pretty_generate(expenses.map(&:serialise))
       File.open(data_file_path, 'w') do |file|
-        file.puts(JSON.pretty_generate(expenses.map(&:serialise)))
+        file.puts(final_json)
       end
     end
 
