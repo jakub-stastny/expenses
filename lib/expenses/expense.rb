@@ -14,7 +14,7 @@ module Expenses
 
     TYPES = {indulgence: 'I', essential: 'E', travelling: 'T', long_term: 'L'}
 
-    attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :total_usd, :total_eur
+    attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :tag, :total_usd, :total_eur
     def initialize(date, type_abbrev, desc, total, tip, currency, note = nil, tag = nil, total_usd = nil, total_eur = nil)
       @date     = validate_date(date)
       @type     = validate_type(type_abbrev)
