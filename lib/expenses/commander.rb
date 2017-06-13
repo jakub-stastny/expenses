@@ -61,10 +61,9 @@ module Expenses
       expense_data[:date] = Date.parse(date)
       # TODO: -1 for yesterday etc.
 
-      print "Types (one of #{Expense::TYPES.join(', ')}): "
-      expense_data[:type] = STDIN.readline.chomp
+      print "Types (one of #{self.show_label_for_self_or_retrieve_by_index(Expense::TYPES)}): "
+      expense_data[:type] = self.self_or_retrieve_by_index(Expense::TYPES, STDIN.readline.chomp)
       abort "Invalid type. Types: #{Expense::TYPES.inspect}" unless Expense::TYPES.include?(expense_data[:type])
-      # TODO: use indices for selection.
 
       print "Description: "
       expense_data[:desc] = STDIN.readline.chomp
@@ -82,18 +81,20 @@ module Expenses
       abort "Invalid amount." unless tip.match(/^\d+(\.\d{2})?$/)
       expense_data[:tip] = (tip.match(/\./) ? tip.delete('.') : "#{tip}00").to_i # Convert to cents.
 
-      print "Currency (EUR): "
-      expense_data[:currency] = STDIN.readline.chomp
-      expense_data[:currency] = 'EUR' if expense_data[:currency].empty?
+      currencies = expenses.map(&:currency).uniq
+      print "Currency (#{self.show_label_for_self_or_retrieve_by_index(currencies)}): "
+      expense_data[:currency] = self.self_or_retrieve_by_index(currencies, STDIN.readline.chomp, 'EUR')
 
       print "Note: "
       expense_data[:note] = STDIN.readline.chomp
 
-      print "Tag (currently used: #{expenses.map(&:tag).uniq.join(' ')}): "
-      expense_data[:tag] = STDIN.readline.chomp
+      tags = expenses.map(&:tag).uniq
+      print "Tag (currently used: #{self.show_label_for_self_or_retrieve_by_index(tags)}): "
+      expense_data[:tag] = self.self_or_retrieve_by_index(tags, STDIN.readline.chomp)
 
-      print "Location (currently used: #{expenses.map(&:location).uniq.join(', ')}): "
-      expense_data[:location] = STDIN.readline.chomp
+      locations = tags = expenses.map(&:location).uniq
+      print "Location (currently used: #{self.show_label_for_self_or_retrieve_by_index(locations)}): "
+      expense_data[:location] = self.self_or_retrieve_by_index(locations, STDIN.readline.chomp)
 
       expenses << Expense.new(**expense_data)
 
@@ -102,6 +103,21 @@ module Expenses
       File.open(data_file_path, 'w') do |file|
         file.puts(JSON.pretty_generate(expenses.map(&:serialise)))
       end
+    end
+
+
+    def self.self_or_retrieve_by_index(list, input, default_value = nil)
+      if input.match(/^\d+$/)
+        list[input.to_i]
+      elsif input.empty?
+        default_value
+      else
+        input
+      end
+    end
+
+    def self.show_label_for_self_or_retrieve_by_index(list)
+      list.map.with_index { |key, index| "#{key} [#{index}]" }.join(', ')
     end
   end
 end
