@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+
+require 'expenses/commander'
+
+data_file_path = File.expand_path("../../Archive/Expenses/#{Time.now.year}.csv", __FILE__)
+
+def parse(data_file_path)
+  raw_data_lines = CSV.read(data_file_path, converters: [:date, :numeric])
+  raw_data_lines.map { |line| Expense.new(*line) }
+end
+
+case ARGV.shift
+when 'edit'
+  Expenses::Commander.edit(data_file_path)
+when 'add', '+'
+  Expenses::Commander.add
+when 'sum'
+  Expenses::Commander.sum
+else
+  data_lines = parse(data_file_path)
+  p data_lines
+end
