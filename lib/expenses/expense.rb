@@ -31,7 +31,7 @@ module Expenses
     end
 
     attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :tag, :location, :total_usd, :total_eur
-    def initialize(date:, type:, desc:, total:, tip: 0, currency:, note: nil, tag: nil, location:, total_usd: 0, total_eur: 0, **rest)
+    def initialize(date:, type:, desc:, total:, tip: 0, currency:, note: nil, tag: nil, location:, total_usd: nil, total_eur: nil, **rest)
       unless rest.empty?
         raise ArgumentError.new("Unexpected key(s): #{rest.keys.inspect}")
       end
