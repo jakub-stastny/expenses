@@ -2,21 +2,16 @@
 
 require 'expenses/commander'
 
-data_file_path = File.expand_path("../../Archive/Expenses/#{Time.now.year}.csv", __FILE__)
-
-def parse(data_file_path)
-  raw_data_lines = CSV.read(data_file_path, converters: [:date, :numeric])
-  raw_data_lines.map { |line| Expense.new(*line) }
-end
+DATA_FILE_PATH = File.expand_path("~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.csv")
 
 case ARGV.shift
 when 'edit'
-  Expenses::Commander.edit(data_file_path)
+  Expenses::Commander.edit(DATA_FILE_PATH)
 when 'add', '+'
-  Expenses::Commander.add
+  Expenses::Commander.add(DATA_FILE_PATH)
 when 'sum'
-  Expenses::Commander.sum
+  Expenses::Commander.sum(DATA_FILE_PATH)
 else
-  data_lines = parse(data_file_path)
+  data_lines = Expenses::Commander.parse(DATA_FILE_PATH)
   p data_lines
 end

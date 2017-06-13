@@ -19,8 +19,8 @@ module Expenses
       @date     = validate_date(date)
       @type     = validate_type(type_abbrev)
       @desc     = validate_desc(desc)
-      @total    = validate_amount(total) # Including tip.
-      @tip      = validate_amount(tip)
+      @total    = validate_amount_in_cents(total) # Including tip.
+      @tip      = validate_amount_in_cents(tip)
       @currency = validate_currency(currency)
       @note     = note
 
@@ -39,6 +39,10 @@ module Expenses
       end
 
       (self.class.currency_rates[base_currency][dest_currency] * amount).round # It's already in cents.
+    end
+
+    def serialise
+      [@date.iso8601, TYPES[@type], @desc, @total, @tip, @currency, @note, @total_usd, @total_eur]
     end
 
     private
@@ -66,13 +70,12 @@ module Expenses
       desc
     end
 
-    def validate_amount(amount)
-      unless amount.match(/^\d+(\.\d{2})?$/)
-        raise TypeError.new("Amount has to be a number.")
+    def validate_amount_in_cents(amount)
+      unless amount.integer?
+        raise TypeError.new("Amount has to be a round number.")
       end
 
-      # Convert to cents.
-      amount.match(/\./) ? amount.delete('.').to_i : "#{amount}00".to_i
+      amount
     end
 
     def validate_currency(currency)
