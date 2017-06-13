@@ -22,9 +22,11 @@ module Expenses
         date = lines.first.date
         monday = date - (date.wday == 0 ? 7 : date.wday - 1)
         puts "Week #{week} (#{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}): #{lines.sum(&:total) / 100} (#{details})"
+        # TODO: report on tags and types.
       end
 
       puts "\nTotal: #{data_lines.sum(&:total) / 100}"
+      # TODO: report on tags and types.
     end
 
     def self.add(data_file_path)
@@ -61,7 +63,10 @@ module Expenses
       print "Note: "
       note = STDIN.readline.chomp
 
-      expense = Expense.new(date, type, desc, total, tip, currency, note)
+      print "Tag (currently used: #{expenses.map(&:tag).uniq.inspect}): "
+      note = STDIN.readline.chomp
+
+      expense = Expense.new(date, type, desc, total, tip, currency, note, tag)
       expenses << expense
 
       # We cannot just add, since when we're offline, we save expenses without
