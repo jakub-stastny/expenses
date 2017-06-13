@@ -27,14 +27,13 @@ module Expenses
         end
 
         all_tags = lines.map(&:tag).uniq.map do |tag|
-          "#{tag} #{lines.select { |line| line.tag == tag }.sum(&:total) / 100}" # TODO: EUR / USD
+          "##{tag} #{lines.select { |line| line.tag == tag }.sum(&:total) / 100}" # TODO: EUR / USD
         end
 
         puts "Week #{week} (#{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}):"
         puts "  EUR #{lines.sum(&:total_eur) / 100} | USD #{lines.sum(&:total_usd) / 100} | #{all_currencies.join(', ')}"
-        puts "  #{all_tags.join(', ')}"
+        puts "  #{all_tags.join(' ')}" # TODO: Use colours to highlight tags vs. currencies.
         puts "  #{all_types.join(', ')}\n\n"
-        # TODO: report on tags and types.
       end
 
       puts "Total: #{data_lines.sum(&:total) / 100}" # TODO: EUR / USD / ALL CURRENCIES
@@ -75,9 +74,12 @@ module Expenses
       note = STDIN.readline.chomp
 
       print "Tag (currently used: #{expenses.map(&:tag).uniq.inspect}): "
-      note = STDIN.readline.chomp
+      tag = STDIN.readline.chomp
 
-      expense = Expense.new(date, type, desc, total, tip, currency, note, tag)
+      print "Location (currently used: #{expenses.map(&:location).uniq.inspect}): "
+      location = STDIN.readline.chomp
+
+      expense = Expense.new(date, type, desc, total, tip, currency, note, tag, location)
       expenses << expense
 
       # We cannot just add, since when we're offline, we save expenses without

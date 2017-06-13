@@ -14,8 +14,8 @@ module Expenses
 
     TYPES = {indulgence: 'I', essential: 'E', travelling: 'T', long_term: 'L'}
 
-    attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :tag, :total_usd, :total_eur
-    def initialize(date, type_abbrev, desc, total, tip, currency, note = nil, tag = nil, total_usd = nil, total_eur = nil)
+    attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :tag, :location, :total_usd, :total_eur
+    def initialize(date, type_abbrev, desc, total, tip, currency, note = nil, tag = nil, location = nil, total_usd = nil, total_eur = nil)
       @date     = validate_date(date)
       @type     = validate_type(type_abbrev)
       @desc     = validate_desc(desc)
@@ -23,7 +23,8 @@ module Expenses
       @tip      = validate_amount_in_cents(tip)
       @currency = validate_currency(currency)
       @note     = note
-      @tag      = validate_tag(tag) if tag
+      @tag      = validate_tag(tag) if tag && ! tag.empty?
+      @location = location
 
       @total_usd = if total_usd then total_usd
       elsif @currency == 'USD' then @total
@@ -43,7 +44,7 @@ module Expenses
     end
 
     def serialise
-      [@date.iso8601, TYPES[@type], @desc, @total, @tip, @currency, @note, @total_usd, @total_eur, "##@tag"]
+      [@date.iso8601, TYPES[@type], @desc, @total, @tip, @currency, @note, @total_usd, @total_eur, ("##@tag" if @tag)]
     end
 
     private
