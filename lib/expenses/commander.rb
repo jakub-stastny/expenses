@@ -1,11 +1,17 @@
-require 'csv'
+require 'json'
 require 'expenses'
 
 module Expenses
   module Commander
     def self.parse(data_file_path)
-      raw_data_lines = CSV.read(data_file_path, converters: [:date, :numeric])
-      raw_data_lines.map { |line| Expense.new(*line) }
+      raw_data_lines = JSON.parse(File.read(data_file_path))
+      raw_data_lines.map do |raw_data_line|
+        Expense.deserialise(raw_data_line)
+      end
+    rescue JSON::ParserError => error
+      puts "JSON from #{data_file_path} cannot be parsed:"
+      puts error.message
+      exit 1
     end
 
     def self.edit(data_file_path)
@@ -27,7 +33,7 @@ module Expenses
         end
 
         all_tags = lines.map(&:tag).uniq.map do |tag|
-          "##{tag} #{lines.select { |line| line.tag == tag }.sum(&:total) / 100}" # TODO: EUR / USD
+          "#{tag} #{lines.select { |line| line.tag == tag }.sum(&:total) / 100}" # TODO: EUR / USD
         end
 
         puts "Week #{week} (#{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}):"
@@ -40,54 +46,61 @@ module Expenses
     end
 
     def self.add(data_file_path)
-      expenses = self.parse(data_file_path)
+      begin
+        expenses = self.parse(data_file_path)
+      rescue Errno::ENOENT
+        expenses = Array.new
+      end
+
+      expense_data = Hash.new
 
       print "Date (#{Date.today.iso8601}): "
       date = STDIN.readline.chomp
       date = Date.today.iso8601 if date.empty?
       abort "Incorrect format." unless date.match(/^\d{4}-\d{2}-\d{2}$/)
-      date = Date.parse(date)
+      expense_data[:date] = Date.parse(date)
+      # TODO: -1 for yesterday etc.
 
-      print "Types (one of #{Expense::TYPES.invert.keys.join(', ')}): "
-      type = STDIN.readline.chomp.upcase
-      abort "Invalid type. Types: #{Expense::TYPES.inspect}" unless Expense::TYPES.invert.include?(type)
+      print "Types (one of #{Expense::TYPES.join(', ')}): "
+      expense_data[:type] = STDIN.readline.chomp
+      abort "Invalid type. Types: #{Expense::TYPES.inspect}" unless Expense::TYPES.include?(expense_data[:type])
+      # TODO: use indices for selection.
 
       print "Description: "
-      desc = STDIN.readline.chomp
+      expense_data[:desc] = STDIN.readline.chomp
+      # TODO: validate presence
 
       print "Total: "
       total = STDIN.readline.chomp
       abort "Invalid amount." unless total.match(/^\d+(\.\d{2})?$/)
-      total = (total.match(/\./) ? total.delete('.') : "#{total}00").to_i # Convert to cents.
+      expense_data[:total] = (total.match(/\./) ? total.delete('.') : "#{total}00").to_i # Convert to cents.
+      # TODO: validate presence
 
       print "Tip: "
       tip = STDIN.readline.chomp
       tip = tip.empty? ? '0' : tip
       abort "Invalid amount." unless tip.match(/^\d+(\.\d{2})?$/)
-      tip = (tip.match(/\./) ? tip.delete('.') : "#{tip}00").to_i # Convert to cents.
+      expense_data[:tip] = (tip.match(/\./) ? tip.delete('.') : "#{tip}00").to_i # Convert to cents.
 
       print "Currency (EUR): "
-      currency = STDIN.readline.chomp
-      currency = 'EUR' if currency.empty?
+      expense_data[:currency] = STDIN.readline.chomp
+      expense_data[:currency] = 'EUR' if expense_data[:currency].empty?
 
       print "Note: "
-      note = STDIN.readline.chomp
+      expense_data[:note] = STDIN.readline.chomp
 
-      print "Tag (currently used: #{expenses.map(&:tag).uniq.inspect}): "
-      tag = STDIN.readline.chomp
+      print "Tag (currently used: #{expenses.map(&:tag).uniq.join(' ')}): "
+      expense_data[:tag] = STDIN.readline.chomp
 
-      print "Location (currently used: #{expenses.map(&:location).uniq.inspect}): "
-      location = STDIN.readline.chomp
+      print "Location (currently used: #{expenses.map(&:location).uniq.join(', ')}): "
+      expense_data[:location] = STDIN.readline.chomp
 
-      expense = Expense.new(date, type, desc, total, tip, currency, note, tag, location)
-      expenses << expense
+      expenses << Expense.new(**expense_data)
 
       # We cannot just add, since when we're offline, we save expenses without
       # their total converted to USD/EUR.
-      CSV.open(data_file_path, 'w') do |csv|
-        expenses.each do |expense|
-          csv << expense.serialise
-        end
+      File.open(data_file_path, 'w') do |file|
+        file.puts(JSON.pretty_generate(expenses.map(&:serialise)))
       end
     end
   end

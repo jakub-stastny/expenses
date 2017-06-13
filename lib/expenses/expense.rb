@@ -12,12 +12,32 @@ module Expenses
       "http://api.fixer.io/latest?base=#{base_currency}"
     end
 
-    TYPES = {indulgence: 'I', essential: 'E', travelling: 'T', long_term: 'L'}
+    TYPES = ['indulgence', 'essential', 'travelling', 'long_term']
+
+    def self.deserialise(data)
+      data = data.reduce(Hash.new) { |result, (key, value)| result.merge(key.to_sym => value)  }
+
+      required_keys = self.instance_method(:initialize).parameters[0..-2].select { |type, name| type == :keyreq }.map(&:last)
+      unless required_keys.all? { |required_key| data.has_key?(required_key) }
+        raise ArgumentError.new("Data #{data.inspect} has the following key(s) missing: #{required_keys - data.keys}")
+      end
+
+      data[:date] = Date.parse(data[:date])
+      data[:total] = data[:total].to_i
+      data[:tip] = data[:tip].to_i if data[:tip]
+      data[:total_usd] = data[:total_usd].to_i if data[:total_usd]
+      data[:total_eur] = data[:total_eur].to_i if data[:total_eur]
+      self.new(data)
+    end
 
     attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :tag, :location, :total_usd, :total_eur
-    def initialize(date, type_abbrev, desc, total, tip, currency, note = nil, tag = nil, location = nil, total_usd = nil, total_eur = nil)
+    def initialize(date:, type:, desc:, total:, tip: 0, currency:, note: nil, tag: nil, location:, total_usd: 0, total_eur: 0, **rest)
+      unless rest.empty?
+        raise ArgumentError.new("Unexpected key(s): #{rest.keys.inspect}")
+      end
+
       @date     = validate_date(date)
-      @type     = validate_type(type_abbrev)
+      @type     = validate_type(type)
       @desc     = validate_desc(desc)
       @total    = validate_amount_in_cents(total) # Including tip.
       @tip      = validate_amount_in_cents(tip)
@@ -44,7 +64,15 @@ module Expenses
     end
 
     def serialise
-      [@date.iso8601, TYPES[@type], @desc, @total, @tip, @currency, @note, @total_usd, @total_eur, ("##@tag" if @tag)]
+      keys = self.method(:initialize).parameters[0..-2].map(&:last)
+      keys.reduce(Hash.new) do |result, key|
+        value = self.send(key)
+        unless [nil, 0, ''].include?(value)
+          result.merge(key => value)
+        else
+          result
+        end
+      end
     end
 
     private
@@ -56,9 +84,9 @@ module Expenses
       date
     end
 
-    def validate_type(type_abbrev)
-      unless type = TYPES.invert[type_abbrev]
-        raise "Unknown type: #{type_abbrev}."
+    def validate_type(type)
+      unless TYPES.include?(type)
+        raise "Unknown type: #{type}."
       end
 
       type
@@ -93,7 +121,7 @@ module Expenses
         raise ArgumentError.new("Tag has to be a #word_or_two.")
       end
 
-      tag[1..-1].to_sym
+      tag
     end
   end
 end

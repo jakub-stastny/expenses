@@ -2,7 +2,7 @@
 
 require 'expenses/commander'
 
-DATA_FILE_PATH = File.expand_path("~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.csv")
+DATA_FILE_PATH = File.expand_path("~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.json")
 
 case ARGV.shift
 when 'edit'
