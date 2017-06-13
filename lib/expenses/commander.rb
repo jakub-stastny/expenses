@@ -22,27 +22,23 @@ module Expenses
       data_lines = self.parse(data_file_path)
       data_lines.group_by { |line| line.date.cweek }.each do |week, lines|
         all_types = lines.group_by(&:type).map do |(type, lines)|
-          "#{type} #{lines.sum(&:total) / 100}" # TODO: EUR / USD
+          "#{type} #{self.report_currencies(lines)}"
         end
 
         date = lines.first.date
         monday = date - (date.wday == 0 ? 7 : date.wday - 1)
 
-        all_currencies = lines.map(&:currency).uniq.map do |currency|
-          "#{currency} #{lines.select { |line| line.currency == currency }.sum(&:total) / 100}"
-        end
-
         all_tags = lines.map(&:tag).uniq.map do |tag|
-          "#{tag} #{lines.select { |line| line.tag == tag }.sum(&:total) / 100}" # TODO: EUR / USD
+          "#{tag} #{self.report_currencies(lines)}"
         end
 
         puts "Week #{week} (#{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}):"
-        puts "  EUR #{lines.sum(&:total_eur) / 100} | USD #{lines.sum(&:total_usd) / 100} | #{all_currencies.join(', ')}"
-        puts "  #{all_tags.join(' ')}" # TODO: Use colours to highlight tags vs. currencies.
-        puts "  #{all_types.join(', ')}\n\n"
+        puts "  #{self.report_in_all_currencies(lines)}"
+        puts "  Spendings by tags: #{all_tags.join(' ')}" # TODO: Use colours to highlight tags vs. currencies.
+        puts "  Spendings by category: #{all_types.join(', ')}\n\n"
       end
 
-      puts "Total: #{data_lines.sum(&:total) / 100}" # TODO: EUR / USD / ALL CURRENCIES
+      puts "Total: #{self.report_in_all_currencies(data_lines)}"
     end
 
     def self.add(data_file_path)
@@ -110,6 +106,17 @@ module Expenses
       end
     end
 
+    def self.report_in_all_currencies(expenses)
+      all_currencies = expenses.map(&:currency).uniq.map do |currency|
+        "#{currency} #{expenses.select { |line| line.currency == currency }.sum(&:total) / 100}"
+      end
+
+      "#{all_currencies.join(', ')} (total €#{expenses.sum(&:total_eur) / 100} or $#{expenses.sum(&:total_usd) / 100})"
+    end
+
+    def self.report_currencies(expenses)
+      "€#{expenses.sum(&:total_eur) / 100} / $#{expenses.sum(&:total_usd) / 100}"
+    end
 
     def self.self_or_retrieve_by_index(list, input, default_value = nil)
       if input.match(/^\d+$/)
