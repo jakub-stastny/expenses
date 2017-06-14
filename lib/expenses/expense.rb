@@ -61,6 +61,8 @@ module Expenses
       end
 
       (self.class.currency_rates[base_currency][dest_currency] * amount).round # It's already in cents.
+    rescue SocketError
+      # Return nil if there is no connection.
     end
 
     def serialise
