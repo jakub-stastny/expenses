@@ -1,8 +1,11 @@
 require 'json'
 require 'expenses'
+require 'refined-refinements/colours'
 
 module Expenses
   module Commander
+    using RR::ColourExts
+
     def self.parse(data_file_path)
       raw_data_lines = JSON.parse(File.read(data_file_path))
       raw_data_lines.map do |raw_data_line|
@@ -22,23 +25,23 @@ module Expenses
       data_lines = self.parse(data_file_path)
       data_lines.group_by { |line| line.date.cweek }.each do |week, lines|
         all_types = lines.group_by(&:type).map do |(type, lines)|
-          "#{type} #{self.report_currencies(lines)}"
+          "<magenta>#{type}</magenta> #{self.report_currencies(lines)}"
         end
 
         date = lines.first.date
         monday = date - (date.wday == 0 ? 7 : date.wday - 1)
 
         all_tags = lines.map(&:tag).uniq.map do |tag|
-          "#{tag} #{self.report_currencies(lines)}"
+          "<cyan>#{tag}</cyan> #{self.report_currencies(lines)}"
         end
 
-        puts "Week #{week} (#{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}):"
-        puts "  #{self.report_in_all_currencies(lines)}"
-        puts "  Spendings by tags: #{all_tags.join(' ')}" # TODO: Use colours to highlight tags vs. currencies.
-        puts "  Spendings by category: #{all_types.join(', ')}\n\n"
+        puts "<green>Week #{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}</green>:".colourise(bold: true)
+        puts "<bold>Spendings by tags:</bold> #{all_tags.join(' ')}".colourise
+        puts "<bold>Spendings by category:</bold> #{all_types.join(' ')}".colourise
+        puts "<bold>Total:</bold> #{self.report_in_all_currencies(lines)}\n\n".colourise
       end
 
-      puts "Total: #{self.report_in_all_currencies(data_lines)}"
+      puts "<bold>Total:</bold> #{self.report_in_all_currencies(data_lines)}".colourise
     end
 
     def self.add(data_file_path)
@@ -111,11 +114,11 @@ module Expenses
         "#{currency} #{expenses.select { |line| line.currency == currency }.sum(&:total) / 100}"
       end
 
-      "#{all_currencies.join(', ')} (total €#{expenses.sum(&:total_eur) / 100} or $#{expenses.sum(&:total_usd) / 100})"
+      "#{all_currencies.join(', ')} (total <underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100})</underline>"
     end
 
     def self.report_currencies(expenses)
-      "€#{expenses.sum(&:total_eur) / 100} / $#{expenses.sum(&:total_usd) / 100}"
+      "<underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100}</underline>"
     end
 
     def self.self_or_retrieve_by_index(list, input, default_value = nil)
