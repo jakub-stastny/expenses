@@ -53,7 +53,7 @@ module Expenses
 
       expense_data = Hash.new
 
-      print "Date (#{Date.today.iso8601} or input date or use -1 for yesterday etc): "
+      print "<bold>Date</bold> (<green>#{Date.today.iso8601}</green> or input date or use <magenta>-1</magenta> for yesterday etc): ".colourise
       date = STDIN.readline.chomp
       date = if date.empty?
         Date.today.iso8601
@@ -132,7 +132,7 @@ module Expenses
     end
 
     def self.show_label_for_self_or_retrieve_by_index(list)
-      list.map.with_index { |key, index| "#{key} [#{index}]" }.join(', ')
+      list.map.with_index { |key, index| "<green>#{key}</green> <magenta>#{index}</magenta>" }.join(' ').colourise
     end
   end
 end
