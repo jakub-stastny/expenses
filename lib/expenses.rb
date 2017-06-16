@@ -1,1 +1,0 @@
-require 'expenses/expense'
