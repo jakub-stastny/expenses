@@ -21,137 +21,22 @@ module Expenses
       system "#{ENV['EDITOR'] || 'vim'} #{data_file_path}"
     end
 
-    def self.sum(data_file_path)
-      data_lines = self.parse(data_file_path)
-      data_lines.group_by { |line| line.date.cweek }.each do |week, lines|
-        date = lines.first.date
-        monday = date - (date.wday == 0 ? 7 : date.wday - 1)
+    def self.report(data_file_path)
+      require 'expenses/commands/report'
+      Expenses::Commands::Report.run(data_file_path)
+    end
 
-        puts "<green>Week #{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}</green>:".colourise(bold: true)
-        self.report(lines); puts
+    def self.review(data_file_path)
+      # TODO
+    end
 
-        if monday.month != (monday + 7).month
-          expenses = data_lines.select { |expense| expense.date.year == monday.year && expense.date.month == monday.month }
-          puts "<blue>#{monday.strftime('%B')} #{monday.year}</blue>:".colourise(bold: true)
-          self.report(expenses)
-          self.report_locations(expenses); puts
-        end
-      end
-
-      puts "<bold>Total:</bold> #{self.report_in_all_currencies(data_lines)}".colourise
+    def self.console(data_file_path)
+      # TODO
     end
 
     def self.add(data_file_path)
-      begin
-        expenses = self.parse(data_file_path)
-      rescue Errno::ENOENT
-        expenses = Array.new
-      end
-
-      expense_data = Hash.new
-
-      print "<bold>Date</bold> (<green>#{Date.today.iso8601}</green> or input date or use <magenta>-1</magenta> for yesterday etc): ".colourise
-      date = STDIN.readline.chomp
-      date = if date.empty?
-        Date.today.iso8601
-      elsif date.match(/^-(\d)/)
-        (Date.today - $1.to_i).iso8601
-      else
-        date
-      end
-
-      abort "Incorrect format." unless date.match(/^\d{4}-\d{2}-\d{2}$/)
-      expense_data[:date] = Date.parse(date)
-
-      print "Types (one of #{self.show_label_for_self_or_retrieve_by_index(Expense::TYPES)}): "
-      expense_data[:type] = self.self_or_retrieve_by_index(Expense::TYPES, STDIN.readline.chomp)
-      abort "Invalid type. Types: #{Expense::TYPES.inspect}" unless Expense::TYPES.include?(expense_data[:type])
-
-      print "Description: "
-      expense_data[:desc] = STDIN.readline.chomp
-      # TODO: validate presence
-
-      print "Total: "
-      total = STDIN.readline.chomp
-      abort "Invalid amount." unless total.match(/^\d+(\.\d{2})?$/)
-      expense_data[:total] = (total.match(/\./) ? total.delete('.') : "#{total}00").to_i # Convert to cents.
-      # TODO: validate presence
-
-      print "Tip: "
-      tip = STDIN.readline.chomp
-      tip = tip.empty? ? '0' : tip
-      abort "Invalid amount." unless tip.match(/^\d+(\.\d{2})?$/)
-      expense_data[:tip] = (tip.match(/\./) ? tip.delete('.') : "#{tip}00").to_i # Convert to cents.
-
-      currencies = expenses.map(&:currency).uniq
-      print "Currency (#{self.show_label_for_self_or_retrieve_by_index(currencies)}): "
-      expense_data[:currency] = self.self_or_retrieve_by_index(currencies, STDIN.readline.chomp, 'EUR')
-
-      print "Note: "
-      expense_data[:note] = STDIN.readline.chomp
-
-      tags = expenses.map(&:tag).uniq
-      print "Tag (currently used: #{self.show_label_for_self_or_retrieve_by_index(tags)}): "
-      expense_data[:tag] = self.self_or_retrieve_by_index(tags, STDIN.readline.chomp)
-
-      locations = tags = expenses.map(&:location).uniq
-      print "Location (currently used: #{self.show_label_for_self_or_retrieve_by_index(locations)}): "
-      expense_data[:location] = self.self_or_retrieve_by_index(locations, STDIN.readline.chomp)
-
-      expenses << Expense.new(**expense_data)
-
-      final_json = JSON.pretty_generate(expenses.map(&:serialise))
-      File.open(data_file_path, 'w') do |file|
-        file.puts(final_json)
-      end
-    end
-
-    def self.report(expenses)
-      all_tags = expenses.map(&:tag).uniq.map do |tag|
-        "<cyan>#{tag}</cyan> #{self.report_currencies(expenses)}"
-      end
-
-      all_types = expenses.group_by(&:type).map do |type, expenses|
-        "<magenta>#{type}</magenta> #{self.report_currencies(expenses)}"
-      end
-
-      puts "<bold>Spendings by tags:</bold> #{all_tags.join(' ')}".colourise
-      puts "<bold>Spendings by category:</bold> #{all_types.join(' ')}".colourise
-      puts "<bold>Total:</bold> #{self.report_in_all_currencies(expenses)}".colourise
-    end
-
-    def self.report_locations(expenses)
-      all_locations = expenses.group_by(&:location).map do |location, expenses|
-        "<yellow>#{location}</yellow> #{self.report_currencies(expenses)}"
-      end
-
-      puts "<bold>Locations:</bold> #{all_locations.join(' ')}".colourise
-    end
-
-    def self.report_in_all_currencies(expenses)
-      all_currencies = expenses.map(&:currency).uniq.map do |currency|
-        "#{currency} #{expenses.select { |line| line.currency == currency }.sum(&:total) / 100}"
-      end
-
-      "#{all_currencies.join(', ')} (total <underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100})</underline>"
-    end
-
-    def self.report_currencies(expenses)
-      "<underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100}</underline>"
-    end
-
-    def self.self_or_retrieve_by_index(list, input, default_value = nil)
-      if input.match(/^\d+$/)
-        list[input.to_i]
-      elsif input.empty?
-        default_value
-      else
-        input
-      end
-    end
-
-    def self.show_label_for_self_or_retrieve_by_index(list)
-      list.map.with_index { |key, index| "<green>#{key}</green> <magenta>#{index}</magenta>" }.join(' ').colourise
+      require 'expenses/commands/add'
+      Expenses::Commands::Add.run(data_file_path)
     end
   end
 end
