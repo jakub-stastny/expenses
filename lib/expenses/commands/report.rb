@@ -2,11 +2,15 @@ require 'refined-refinements/colours'
 
 module Expenses
   module Commands
-    module Report
+    class Report
       using RR::ColourExts
 
-      def self.run(data_lines)
-        data_lines.group_by { |line| line.date.cweek }.each do |week, lines|
+      def initialize(expenses)
+        @expenses = expenses
+      end
+
+      def run
+        @expenses.group_by { |line| line.date.cweek }.each do |week, lines|
           date = lines.first.date
           monday = date - (date.wday == 0 ? 7 : date.wday - 1)
 
@@ -14,17 +18,17 @@ module Expenses
           self.report(lines); puts
 
           if monday.month != (monday + 7).month
-            expenses = data_lines.select { |expense| expense.date.year == monday.year && expense.date.month == monday.month }
+            expenses = @expenses.select { |expense| expense.date.year == monday.year && expense.date.month == monday.month }
             puts "<blue>#{monday.strftime('%B')} #{monday.year}</blue>:".colourise(bold: true)
             self.report(expenses)
             self.report_locations(expenses); puts
           end
         end
 
-        puts "<bold>Total:</bold> #{self.report_in_all_currencies(data_lines)}".colourise
+        puts "<bold>Total:</bold> #{self.report_in_all_currencies(@expenses)}".colourise
       end
 
-      def self.report(expenses)
+      def report(expenses)
         all_tags = expenses.map(&:tag).uniq.map do |tag|
           "<cyan>#{tag}</cyan> #{self.report_currencies(expenses)}"
         end
@@ -38,7 +42,7 @@ module Expenses
         puts "<bold>Total:</bold> #{self.report_in_all_currencies(expenses)}".colourise
       end
 
-      def self.report_locations(expenses)
+      def report_locations(expenses)
         all_locations = expenses.group_by(&:location).map do |location, expenses|
           "<yellow>#{location}</yellow> #{self.report_currencies(expenses)}"
         end
@@ -46,7 +50,7 @@ module Expenses
         puts "<bold>Locations:</bold> #{all_locations.join(' ')}".colourise
       end
 
-      def self.report_in_all_currencies(expenses)
+      def report_in_all_currencies(expenses)
         all_currencies = expenses.map(&:currency).uniq.map do |currency|
           "#{currency} #{expenses.select { |line| line.currency == currency }.sum(&:total) / 100}"
         end
@@ -54,7 +58,7 @@ module Expenses
         "#{all_currencies.join(', ')} (total <underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100})</underline>"
       end
 
-      def self.report_currencies(expenses)
+      def report_currencies(expenses)
         "<underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100}</underline>"
       end
     end

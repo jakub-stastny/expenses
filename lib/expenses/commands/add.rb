@@ -2,10 +2,14 @@ require 'refined-refinements/colours'
 
 module Expenses
   module Commands
-    module Add
+    class Add
       using RR::ColourExts
 
-      def self.run(data_file_path, &parse_expenses_block)
+      def initialize(data_file_path)
+        @data_file_path = data_file_path
+      end
+
+      def run(&parse_expenses_block)
         begin
           expenses = parse_expenses_block.call
         rescue Errno::ENOENT
@@ -65,12 +69,12 @@ module Expenses
         expenses << Expense.new(**expense_data)
 
         final_json = JSON.pretty_generate(expenses.map(&:serialise))
-        File.open(data_file_path, 'w') do |file|
+        File.open(@data_file_path, 'w') do |file|
           file.puts(final_json)
         end
       end
 
-      def self.self_or_retrieve_by_index(list, input, default_value = nil)
+      def self_or_retrieve_by_index(list, input, default_value = nil)
         if input.match(/^\d+$/)
           list[input.to_i]
         elsif input.empty?
@@ -80,7 +84,7 @@ module Expenses
         end
       end
 
-      def self.show_label_for_self_or_retrieve_by_index(list)
+      def show_label_for_self_or_retrieve_by_index(list)
         list.map.with_index { |key, index|
           "<green>#{key}</green> <magenta>#{index}</magenta>"
         }.join(' ').colourise

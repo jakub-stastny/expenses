@@ -2,20 +2,28 @@ require 'refined-refinements/colours'
 
 module Expenses
   module Commands
-    module Review
+    class Review
       using RR::ColourExts
 
-      def self.run(data_lines)
+      def initialize(expenses)
+        @expenses = expenses
+      end
+
+      def run
         abort 'This is not yet implemented.'
 
-        expenses = self.parse(data_file_path)
-        expenses_for_review = expenses.select { |expense| expense.should_be_reviewed? }
-        expenses_for_review.each do
+        self.expenses_for_review.each do
           puts "Was #{expense.desc} worth €#{expense.total_eur}? (yes/no/not sure): "
           STDIN.readline
           puts "Any comments? "
           STDIN.readline
         end
+      end
+
+      def self.expenses_for_review
+        expenses.select { |expense|
+          expense.type == 'long_term' && expense.metadata.reviews.last[:date] < 3.months.ago
+        }
       end
     end
   end

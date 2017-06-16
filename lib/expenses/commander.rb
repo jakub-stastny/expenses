@@ -18,19 +18,19 @@ module Expenses
     def self.add(data_file_path)
       require 'expenses/commands/add'
 
-      Expenses::Commands::Add.run(data_file_path) do
+      Expenses::Commands::Add.new(data_file_path).run do
         self.parse(data_file_path)
       end
     end
 
     def self.report(data_file_path)
       require 'expenses/commands/report'
-      Expenses::Commands::Report.run(self.parse(data_file_path))
+      Expenses::Commands::Report.new(self.parse(data_file_path)).run
     end
 
     def self.review(data_file_path)
-      require 'expenses/commands/report'
-      Expenses::Commands::Review.run(self.parse(data_file_path))
+      require 'expenses/commands/review'
+      Expenses::Commands::Review.new(self.parse(data_file_path)).run
     end
 
     def self.console(data_file_path)

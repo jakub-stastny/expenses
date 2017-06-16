@@ -1,5 +1,6 @@
 - Report on per day spending per location.
 - Report on per day spending per week and month.
 - Quaterly and yearly reports.
+- Add tests and Travis integration.
 - Support income as well.
-- Add a command to review long term purchases (metadata last_reviewed).
+- Finish the review command based on metadata.last_review.{note,date}.
