@@ -24,7 +24,11 @@ end
 __END__
 <red.bold>Expenses</red.bold>
 
-Utility for keeping track of expenses in multiple currencies.
+Command-line utility for keeping track of expenses in multiple currencies.
+
+Original currency is always saved alongside the EUR and USD equivalent <underline>at the time</underline>.
+This way we can report in either EUR or USD without having to look for old conversion
+rates and hence without the need for internet connection for doing reports.
 
 <green.bold>Options</green.bold>
 
