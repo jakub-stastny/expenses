@@ -1,8 +1,11 @@
+require 'refined-refinements/colours'
+
 module Expenses
   module Commands
     module Report
-      def self.run(data_file_path)
-        data_lines = self.parse(data_file_path)
+      using RR::ColourExts
+
+      def self.run(data_lines)
         data_lines.group_by { |line| line.date.cweek }.each do |week, lines|
           date = lines.first.date
           monday = date - (date.wday == 0 ? 7 : date.wday - 1)

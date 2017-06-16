@@ -77,6 +77,10 @@ module Expenses
       end
     end
 
+    def self.should_be_reviewed?
+      self.type == 'long_term' #&& self.metadata ...
+    end
+
     private
     def validate_date(date)
       unless date.is_a?(Date)

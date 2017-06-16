@@ -1,9 +1,13 @@
+require 'refined-refinements/colours'
+
 module Expenses
   module Commands
     module Add
-      def self.run(data_file_path)
+      using RR::ColourExts
+
+      def self.run(data_file_path, &parse_expenses_block)
         begin
-          expenses = self.parse(data_file_path)
+          expenses = parse_expenses_block.call
         rescue Errno::ENOENT
           expenses = Array.new
         end
@@ -77,7 +81,10 @@ module Expenses
       end
 
       def self.show_label_for_self_or_retrieve_by_index(list)
-        list.map.with_index { |key, index| "<green>#{key}</green> <magenta>#{index}</magenta>" }.join(' ').colourise
+        list.map.with_index { |key, index|
+          "<green>#{key}</green> <magenta>#{index}</magenta>"
+        }.join(' ').colourise
       end
     end
   end
+end
