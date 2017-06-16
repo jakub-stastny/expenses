@@ -1,4 +1,4 @@
-# About
+# About ![](https://travis-ci.org/botanicus/expenses.svg?branch=master)
 
 Command-line utility for keeping track of expenses in multiple currencies.
 

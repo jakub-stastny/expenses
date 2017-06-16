@@ -1,6 +1,7 @@
+- Finish expense and expense_spec.rb and add.rb and report.rb.
+
 - Report on per day spending per location.
 - Report on per day spending per week and month.
 - Quaterly and yearly reports.
-- Add tests and Travis integration.
 - Support income as well.
 - Finish the review command based on metadata.last_review.{note,date}.
