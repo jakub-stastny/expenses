@@ -1,17 +1,39 @@
 #!/usr/bin/env ruby
 
 require 'expenses/commander'
+require 'refined-refinements/colours'
 
-DATA_FILE_PATH = File.expand_path("~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.json")
+DATA_FILE_PATH = ENV['EXPENSE_DATA_FILE_PATH'] || File.expand_path("~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.json")
 
 case ARGV.shift
-when 'edit'
-  Expenses::Commander.edit(DATA_FILE_PATH)
-when 'add', '+'
+when 'add', 'a', '+'
   Expenses::Commander.add(DATA_FILE_PATH)
-when 'sum'
-  Expenses::Commander.sum(DATA_FILE_PATH)
+when 'report', 'r'
+  Expenses::Commander.report(DATA_FILE_PATH)
+when 'review'
+  Expenses::Commander.review(DATA_FILE_PATH)
+when 'console', 'c'
+  Expenses::Commander.console(DATA_FILE_PATH)
+when 'edit', 'e'
+  Expenses::Commander.edit(DATA_FILE_PATH)
 else
-  data_lines = Expenses::Commander.parse(DATA_FILE_PATH)
-  p data_lines
+  using RR::ColourExts
+  puts DATA.read.colourise.gsub(/#\{[^}]+\}/) { |match| eval(match[2..-2]) }
 end
+
+__END__
+<red.bold>Expenses</red.bold>
+
+Utility for keeping track of expenses in multiple currencies.
+
+<green.bold>Options</green.bold>
+
+expense <cyan>add</cyan>, <cyan>a</cyan>, <cyan>+</cyan>  <bright_black># Interactively add a new expense.</bright_black>
+expense <cyan>report</cyan>, <cyan>r</cyan>  <bright_black># Report on your spendings.</bright_black>
+expense <cyan>review</cyan>     <bright_black># Review long-term purchases.</bright_black>
+expense <cyan>console</cyan>, <cyan>c</cyan> <bright_black># Launch Ruby console with expense data loaded.</bright_black>
+expense <cyan>edit</cyan>, <cyan>e</cyan>    <bright_black># Edit expense data in $EDITOR.</bright_black>
+
+<green.bold>Environment variables</green.bold>
+
+<yellow>EXPENSE_DATA_FILE_PATH</yellow> defaults to <green>~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.json</green>
