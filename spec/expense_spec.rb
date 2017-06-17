@@ -1,11 +1,5 @@
 require 'expenses/expense'
 
-# class BlankConverter < Expenses::Converter
-#   def convert(*args)
-#     raise ConversionError.new(error)
-#   end
-# end
-
 describe Expenses::Expense do
   let(:data) do
     { 'date'     => '2017-06-16',
