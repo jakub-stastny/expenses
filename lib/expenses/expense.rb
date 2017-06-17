@@ -1,21 +1,13 @@
 require 'date'
-require 'open-uri'
 require 'json'
+require 'expenses/converter'
 
 module Expenses
   class Expense
-    def self.currency_rates
-      @currency_rates ||= Hash.new
-    end
-
-    def self.fixer_url(base_currency)
-      "http://api.fixer.io/latest?base=#{base_currency}"
-    end
-
     TYPES = ['indulgence', 'essential', 'travelling', 'long_term']
 
     def self.deserialise(data)
-      data = data.reduce(Hash.new) { |result, (key, value)| result.merge(key.to_sym => value)  }
+      data = data.reduce(Hash.new) { |result, (key, value)| result.merge(key.to_sym => value) }
 
       required_keys = self.instance_method(:initialize).parameters[0..-2].select { |type, name| type == :keyreq }.map(&:last)
       unless required_keys.all? { |required_key| data.has_key?(required_key) }
@@ -27,6 +19,7 @@ module Expenses
       data[:tip] = data[:tip].to_i if data[:tip]
       data[:total_usd] = data[:total_usd].to_i if data[:total_usd]
       data[:total_eur] = data[:total_eur].to_i if data[:total_eur]
+
       self.new(data)
     end
 
@@ -56,12 +49,9 @@ module Expenses
     end
 
     def convert_currency(amount, base_currency, dest_currency)
-      self.class.currency_rates[base_currency] ||= open(self.class.fixer_url(base_currency)) do |stream|
-        self.class.currency_rates[base_currency] = JSON.parse(stream.read)['rates']
-      end
-
-      (self.class.currency_rates[base_currency][dest_currency] * amount).round # It's already in cents.
-    rescue SocketError
+      converter = Converter.new(base_currency)
+      converter.convert(dest_currency, amount).round # It's already in cents.
+    rescue ConversionError
       # Return nil if there is no connection.
     end
 

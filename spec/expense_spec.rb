@@ -1,5 +1,11 @@
 require 'expenses/expense'
 
+# class BlankConverter < Expenses::Converter
+#   def convert(*args)
+#     raise ConversionError.new(error)
+#   end
+# end
+
 describe Expenses::Expense do
   let(:data) do
     { date: '2017-06-16',
@@ -16,13 +22,25 @@ describe Expenses::Expense do
     end
   end
 
-  subject do
-    described_class.deserialise(data)
-  end
+  context 'offline' do
+    let(:described_class) do
+      Class.new(Expenses::Expense) do
+        def convert_currency(*args)
+          # Do not convert anything.
+        end
+      end
+    end
 
-  describe '#serialise' do
-    it "serialises ..............." do
-      expect(subject.serialise).to eql(data)
+    subject do
+      described_class.deserialise(data)
+    end
+
+    describe '#serialise' do
+      it "serialises ..............." do
+        expect(subject.serialise).to eql(data.dup.tap { |data|
+          data[:date] = Date.parse(data[:date])
+        })
+      end
     end
   end
 end
