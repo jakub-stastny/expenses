@@ -1,5 +1,4 @@
 require 'date'
-require 'json'
 require 'expenses/converter'
 
 module Expenses
@@ -7,20 +6,23 @@ module Expenses
     TYPES = ['indulgence', 'essential', 'travelling', 'long_term']
 
     def self.deserialise(data)
-      data = data.reduce(Hash.new) { |result, (key, value)| result.merge(key.to_sym => value) }
-
-      required_keys = self.instance_method(:initialize).parameters[0..-2].select { |type, name| type == :keyreq }.map(&:last)
-      unless required_keys.all? { |required_key| data.has_key?(required_key) }
-        raise ArgumentError.new("Data #{data.inspect} has the following key(s) missing: #{required_keys - data.keys}")
+      data = data.reduce(Hash.new) do |result, (key, value)|
+        result.merge(key.to_sym => value)
       end
 
-      data[:date] = Date.parse(data[:date])
-      data[:total] = data[:total].to_i
-      data[:tip] = data[:tip].to_i if data[:tip]
-      data[:total_usd] = data[:total_usd].to_i if data[:total_usd]
-      data[:total_eur] = data[:total_eur].to_i if data[:total_eur]
+      # The following would happen anyway, we're only providing a better message.
+      required_keys = self.instance_method(:initialize).parameters[0..-2].
+        select { |type, name| type == :keyreq }.map(&:last)
 
-      self.new(data)
+      unless required_keys.all? { |required_key| data.has_key?(required_key) }
+        missing_keys = required_keys - data.keys
+        raise ArgumentError.new(
+          "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}")
+      end
+
+      self.new(data.tap { |data|
+        data[:date] = Date.parse(data[:date])
+      })
     end
 
     attr_reader :date, :type, :desc, :total, :tip, :currency, :note, :tag, :location, :total_usd, :total_eur
@@ -39,11 +41,11 @@ module Expenses
       @tag      = validate_tag(tag) if tag && ! tag.empty?
       @location = location
 
-      @total_usd = if total_usd then total_usd
+      @total_usd = if total_usd then validate_amount_in_cents(total_usd)
       elsif @currency == 'USD' then @total
       else convert_currency(@total, @currency, 'USD') end
 
-      @total_eur = if total_eur then total_eur
+      @total_eur = if total_eur then validate_amount_in_cents(total_eur)
       elsif @currency == 'EUR' then @total
       else convert_currency(@total, @currency, 'EUR') end
     end
@@ -78,7 +80,7 @@ module Expenses
 
     def validate_type(type)
       unless TYPES.include?(type)
-        raise "Unknown type: #{type}."
+        raise ArgumentError.new("Unknown type: #{type}.")
       end
 
       type
