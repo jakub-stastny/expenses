@@ -204,10 +204,11 @@ describe Expenses::Expense do
     end
   end
 
-  context 'offline' do
+  describe '#serialise' do
     let(:described_class) do
       Class.new(Expenses::Expense) do
         def convert_currency(*args)
+          # Let's pretend we're offline.
         end
       end
     end
@@ -216,17 +217,15 @@ describe Expenses::Expense do
       described_class.deserialise(data)
     end
 
-    describe '#serialise' do
-      it "serialises ..............." do
-        expect(subject.serialise).to eql({
-          date: Date.parse(data['date']),
-          type: 'essential',
-          desc: '10 kg worth of rice',
-          total: 12000,
-          currency: 'CZK',
-          location: 'PT'
-        })
-      end
+    it "serialises ..............." do
+      expect(subject.serialise).to eql({
+        date: Date.parse(data['date']),
+        type: 'essential',
+        desc: '10 kg worth of rice',
+        total: 12000,
+        currency: 'CZK',
+        location: 'PT'
+      })
     end
   end
 end
