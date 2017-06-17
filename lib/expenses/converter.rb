@@ -5,8 +5,18 @@ module Expenses
   class ConversionError < StandardError; end
 
   class Converter
+    # @api private
     def self.currency_rates
-      @currency_rates ||= Hash.new
+      @currency_rates ||= Hash.new do |hash, key|
+        hash[key] = self.get_currency_rates_for(key)
+      end
+    end
+
+    # @api private
+    def self.get_currency_rates_for(currency)
+      open("http://api.fixer.io/latest?base=#{currency}") do |stream|
+        return JSON.parse(stream.read)['rates']
+      end
     end
 
     attr_reader :base_currency
@@ -15,18 +25,14 @@ module Expenses
     end
 
     def convert(dest_currency, amount)
-      self.class.currency_rates[@base_currency] ||= open(fixer_url(@base_currency)) do |stream|
-        self.class.currency_rates[@base_currency] = JSON.parse(stream.read)['rates']
-      end
-
-      self.class.currency_rates[@base_currency][dest_currency] * amount
+      currency_rates[dest_currency] * amount
     rescue SocketError => error
       raise ConversionError.new(error)
     end
 
     private
-    def fixer_url(base_currency)
-      "http://api.fixer.io/latest?base=#{base_currency}"
+    def currency_rates
+      self.class.currency_rates[@base_currency]
     end
   end
 end
