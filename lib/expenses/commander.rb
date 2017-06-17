@@ -1,5 +1,5 @@
 require 'json'
-require 'expenses'
+require 'expenses/expense'
 
 module Expenses
   module Commander
