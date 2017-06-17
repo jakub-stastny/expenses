@@ -217,7 +217,20 @@ describe Expenses::Expense do
       described_class.deserialise(data)
     end
 
-    it "serialises ..............." do
+    it "serialises the data" do
+      expect(subject.serialise).to eql({
+        date: Date.parse(data['date']),
+        type: 'essential',
+        desc: '10 kg worth of rice',
+        total: 12000,
+        currency: 'CZK',
+        location: 'PT'
+      })
+    end
+
+    it "leaves out every nil, 0 and empty string" do
+      subject = described_class.deserialise(data.merge({tip: 0, note: '', tag: nil}))
+
       expect(subject.serialise).to eql({
         date: Date.parse(data['date']),
         type: 'essential',
