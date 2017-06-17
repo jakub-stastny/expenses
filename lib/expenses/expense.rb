@@ -3,7 +3,7 @@ require 'expenses/converter'
 
 module Expenses
   class Expense
-    TYPES = ['indulgence', 'essential', 'travelling', 'long_term']
+    TYPES = ['indulgence', 'essential', 'travelling', 'long_term', 'gift']
 
     def self.deserialise(data)
       data = data.reduce(Hash.new) do |result, (key, value)|
