@@ -22,7 +22,7 @@ module Expenses
 
         expenses << Expense.new(**@prompt.data)
 
-        puts; p expenses.last
+        puts; p **@prompt.data; puts; p expenses.last ###
         save_expenses(expenses)
       rescue Interrupt
         puts; exit

@@ -1,8 +1,8 @@
-- Finish add.rb and report.rb.
+- Finish report.rb.
+  - Report on per day spending per location.
+  - Report on per day spending per week and month.
 - Release as a gem and tag with 1.0.
 
-- Report on per day spending per location.
-- Report on per day spending per week and month.
 - Quaterly and yearly reports.
 - Finish the review command based on metadata.last_review.{note,date}.
 

@@ -10,6 +10,10 @@ module Expenses
       end
 
       def run
+        unless @expenses.all? { |expense| expense.total_eur && expense.total_usd }
+          abort "Amounts in EUR/USD are missing for some expenses. Connect to the internet."
+        end
+
         @expenses.group_by { |line| line.date.cweek }.each do |week, lines|
           date = lines.first.date
           monday = date - (date.wday == 0 ? 7 : date.wday - 1)
