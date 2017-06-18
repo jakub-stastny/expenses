@@ -181,6 +181,7 @@ describe Expenses::Expense do
       }.not_to raise_error
     end
 
+    # NOTE: This one doesn't work offline.
     it "sets the EUR total to the overall total if the currency is EUR" do
       instance = described_class.new(data.tap { |data| data[:currency] = 'EUR' })
       expect(instance.total_eur).to eql(data[:total])
