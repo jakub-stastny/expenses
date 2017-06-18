@@ -10,17 +10,19 @@ module Expenses
       def run(&parse_expenses_block)
         expenses = get_expenses(&parse_expenses_block)
 
-        # prompt_date
-        # prompt_type
-        # prompt_total
-        # prompt_tip
+        prompt_date
+        prompt_type
+        prompt_desc
+        prompt_total
+        prompt_tip
         prompt_currency(expenses)
-        # prompt_note
-        # prompt_tag(expenses)
-        # prompt_location(expenses)
-        exit ###
+        prompt_note
+        prompt_tag(expenses)
+        prompt_location(expenses)
 
-        expenses << validate_expense(@prompt.data)
+        expenses << Expense.new(**@prompt.data)
+
+        puts; p expenses.last
         save_expenses(expenses)
       rescue Interrupt
         puts; exit
@@ -54,6 +56,16 @@ module Expenses
         end
       end
 
+      def prompt_desc
+        @prompt.prompt(:desc, 'Description') do
+          clean_value { |raw_value| raw_value }
+
+          validate_clean_value do |clean_value|
+            clean_value && ! clean_value.empty?
+          end
+        end
+      end
+
       def prompt_total
         @prompt.prompt(:total, 'Total') do
           validate_raw_value(/^\d+(\.\d{2})?$/)
@@ -82,7 +94,7 @@ module Expenses
         currencies = expenses.map(&:currency).uniq
         @prompt.prompt(:currency, 'Currency code', options: currencies) do
           clean_value do |raw_value|
-            self.retrieve_by_index_or_self_if_on_the_list(currencies, raw_value)
+            self.self_or_retrieve_by_index(currencies, raw_value)
           end
 
           validate_clean_value do |clean_value|
@@ -98,26 +110,27 @@ module Expenses
       end
 
       def prompt_tag(expenses)
-        tags = expenses.map(&:tag).uniq
-        tag_help = "currently used: #{self.show_label_for_self_or_retrieve_by_index(tags)}" unless tags.empty?
-        @prompt.prompt(:tag, 'Tag', help: tag_help) do
-          clean_value do |raw_value|
-            self.self_or_retrieve_by_index(tags, raw_value)
-          end
-        end
-      end
-
-      def prompt_location(expenses)
-        locations = expenses.map(&:location).uniq
-        location_help = " (currently used: #{self.show_label_for_self_or_retrieve_by_index(locations)})" unless locations.empty?
-        print "Location#{location_help}: "
-        @prompt.prompt(:location, 'Location', help: location_help) do
+        tags = expenses.map(&:tag).uniq.compact
+        @prompt.prompt(:tag, 'Tag', options: tags) do
           clean_value do |raw_value|
             self.self_or_retrieve_by_index(tags, raw_value)
           end
 
           validate_clean_value do |clean_value|
-            ! clean_value.empty?
+            clean_value.match(/^#[a-z_]+$/)
+          end
+        end
+      end
+
+      def prompt_location(expenses)
+        locations = expenses.map(&:location).uniq.compact
+        @prompt.prompt(:location, 'Location', options: locations) do
+          clean_value do |raw_value|
+            self.self_or_retrieve_by_index(locations, raw_value)
+          end
+
+          validate_clean_value do |clean_value|
+            clean_value && ! clean_value.empty?
           end
         end
       end
@@ -128,27 +141,11 @@ module Expenses
         Array.new
       end
 
-      # This is to get rid of empty values through serialise, so the validations catches up all errors.
-      def validate_expense(data)
-        expense = Expense.new(**expense_data)
-        return Expense.deserialise(expense.serialise)
-      rescue => error
-        # Load pry, so you can fix it. Press Ctrl+d to save.
-        try_to_load_console
-      ensure
-        puts; p expenses.last
-      end
-
       def save_expenses(expenses)
         final_json = JSON.pretty_generate(expenses.map(&:serialise))
         File.open(@data_file_path, 'w') do |file|
           file.puts(final_json)
         end
-      end
-
-      def try_to_load_console
-        require 'pry'; binding.pry
-      rescue LoadError
       end
     end
   end
