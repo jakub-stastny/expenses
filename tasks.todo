@@ -1,9 +1,8 @@
 - Finish report.rb.
   - Report on per day spending per location.
   - Report on per day spending per week and month.
+- Add enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.
 - Release as a gem and tag with 1.0.
 
-- Quaterly and yearly reports.
+- Add quaterly and yearly reports.
 - Finish the review command based on metadata.last_review.{note,date}.
-
-- Support income as well.

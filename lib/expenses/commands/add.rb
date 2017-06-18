@@ -3,12 +3,16 @@ require 'refined-refinements/cli/prompt'
 module Expenses
   module Commands
     class Add
-      def initialize(data_file_path)
-        @data_file_path, @prompt = data_file_path, RR::Prompt.new
+      def initialize(manager)
+        @manager, @prompt = manager, RR::Prompt.new
       end
 
-      def run(&parse_expenses_block)
-        expenses = get_expenses(&parse_expenses_block)
+      def run
+        begin
+          expenses = @manager.parse
+        rescue Errno::ENOENT
+          expenses = Array.new
+        end
 
         prompt_date
         prompt_type
@@ -22,8 +26,9 @@ module Expenses
 
         expenses << Expense.new(**@prompt.data)
 
-        puts; p **@prompt.data; puts; p expenses.last ###
-        save_expenses(expenses)
+        @manager.save(expenses)
+
+        puts "\nExpense #{expenses.last.serialise.inspect} has been saved."
       rescue Interrupt
         puts; exit
       end
@@ -132,19 +137,6 @@ module Expenses
           validate_clean_value do |clean_value|
             clean_value && ! clean_value.empty?
           end
-        end
-      end
-
-      def get_expenses(&parse_expenses_block)
-        parse_expenses_block.call
-      rescue Errno::ENOENT
-        Array.new
-      end
-
-      def save_expenses(expenses)
-        final_json = JSON.pretty_generate(expenses.map(&:serialise))
-        File.open(@data_file_path, 'w') do |file|
-          file.puts(final_json)
         end
       end
     end

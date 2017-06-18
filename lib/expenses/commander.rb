@@ -1,42 +1,35 @@
-require 'json'
 require 'expenses/expense'
+require 'expenses/manager'
 
 module Expenses
   module Commander
-    def self.parse(data_file_path)
-      raw_data_lines = JSON.parse(File.read(data_file_path))
-      raw_data_lines.map do |raw_data_line|
-        Expense.deserialise(raw_data_line)
-      end
-    rescue JSON::ParserError => error
-      puts "JSON from #{data_file_path} cannot be parsed:"
-      puts error.message
-      exit 1
-    end
-
-    # Commands.
     def self.add(data_file_path)
       require 'expenses/commands/add'
 
-      Expenses::Commands::Add.new(data_file_path).run do
-        self.parse(data_file_path)
-      end
+      manager = Expenses::Manager.new(data_file_path)
+      Expenses::Commands::Add.new(manager).run
     end
 
     def self.report(data_file_path)
       require 'expenses/commands/report'
-      Expenses::Commands::Report.new(self.parse(data_file_path)).run
+
+      manager = Expenses::Manager.new(data_file_path)
+      Expenses::Commands::Report.new(manager.parse).run
     end
 
     def self.review(data_file_path)
       require 'expenses/commands/review'
-      Expenses::Commands::Review.new(self.parse(data_file_path)).run
+
+      manager = Expenses::Manager.new(data_file_path)
+      Expenses::Commands::Review.new(manager).run
     end
 
     def self.console(data_file_path)
-      require 'pry'
-      expenses = self.parse(data_file_path)
-      binding.pry
+      # Console usage:
+      # Use manager.save(expenses) to save your modifications.
+      manager  = Expenses::Manager.new(data_file_path)
+      expenses = manager.parse
+      require 'pry'; binding.pry
     end
 
     def self.edit(data_file_path)

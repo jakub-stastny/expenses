@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2017-06-18",
+    "type": "indulgence",
+    "desc": "Salsa night ticket.",
+    "total": 750,
+    "currency": "EUR",
+    "location": "Madrid",
+    "tag": "#social",
+    "total_eur": 750
+  }
+]

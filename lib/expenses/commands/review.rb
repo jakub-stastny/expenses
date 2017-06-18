@@ -5,8 +5,8 @@ module Expenses
     class Review
       using RR::ColourExts
 
-      def initialize(expenses)
-        @expenses = expenses
+      def initialize(manager)
+        @manager, @expenses = manager, manager.parse
       end
 
       def run
@@ -20,7 +20,7 @@ module Expenses
         end
       end
 
-      def self.expenses_for_review
+      def expenses_for_review
         expenses.select { |expense|
           expense.type == 'long_term' && expense.metadata.reviews.last[:date] < 3.months.ago
         }

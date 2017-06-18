@@ -14,6 +14,13 @@ module Expenses
           abort "Amounts in EUR/USD are missing for some expenses. Connect to the internet."
         end
 
+        print_weekly_report
+        print_location_report
+
+        puts "<bold>Total:</bold> #{self.report_in_all_currencies(@expenses)}".colourise
+      end
+
+      def print_weekly_report
         @expenses.group_by { |line| line.date.cweek }.each do |week, lines|
           date = lines.first.date
           monday = date - (date.wday == 0 ? 7 : date.wday - 1)
@@ -28,8 +35,11 @@ module Expenses
             self.report_locations(expenses); puts
           end
         end
+      end
 
-        puts "<bold>Total:</bold> #{self.report_in_all_currencies(@expenses)}".colourise
+      def print_location_report
+        # TODO
+        puts "Spendings per location:"
       end
 
       def report(expenses)
