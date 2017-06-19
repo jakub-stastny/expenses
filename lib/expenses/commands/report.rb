@@ -5,8 +5,8 @@ module Expenses
     class Report
       using RR::ColourExts
 
-      def initialize(expenses)
-        @expenses = expenses
+      def initialize(manager)
+        @manager, @expenses = manager, manager.parse
       end
 
       def run
@@ -18,6 +18,11 @@ module Expenses
         print_location_report
 
         puts "<bold>Total:</bold> #{self.report_in_all_currencies(@expenses)}".colourise
+
+        # Save to persist addition of missing total EUR/USD.
+        # We cannot do so conditionally, as expenses are already loaded with these values
+        # even if they are not present in the expense file, so comparison is pointless.
+        @manager.save(@expenses)
       end
 
       def print_weekly_report

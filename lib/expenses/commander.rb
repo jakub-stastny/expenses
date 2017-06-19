@@ -14,7 +14,7 @@ module Expenses
       require 'expenses/commands/report'
 
       manager = Expenses::Manager.new(data_file_path)
-      Expenses::Commands::Report.new(manager.parse).run
+      Expenses::Commands::Report.new(manager).run
     end
 
     def self.review(data_file_path)

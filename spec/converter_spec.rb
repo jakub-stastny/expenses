@@ -14,9 +14,9 @@ describe Expenses::Converter do
 
   describe '.convert(dest_currency, amount)' do
     it "converts given amount from the base_currency to the dest_currency" do
-      described_class.currency_rates['EUR'] = {'CZK' => 25.20}
       instance = described_class.new('EUR')
-      expect(instance.convert('CZK', 2.50)).to eql(2.50 * 25.20)
+      expected_value = instance.send(:currency_rates)['CZK'] * 2.50
+      expect(instance.convert('CZK', 2.50)).to eql(expected_value)
     end
   end
 end

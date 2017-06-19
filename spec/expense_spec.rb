@@ -181,9 +181,8 @@ describe Expenses::Expense do
       }.not_to raise_error
     end
 
-    # NOTE: This one doesn't work offline.
     it "sets the EUR total to the overall total if the currency is EUR" do
-      instance = described_class.new(data.tap { |data| data[:currency] = 'EUR' })
+      instance = described_class.new(data.merge(currency: 'EUR'))
       expect(instance.total_eur).to eql(data[:total])
     end
 
@@ -234,6 +233,31 @@ describe Expenses::Expense do
         currency: 'CZK',
         location: 'PT'
       })
+    end
+  end
+
+  describe '#==(anotherExpense)' do
+    let(:data) do
+      { date: Date.parse('2017-06-16'),
+        type: 'essential',
+        desc: '10 kg worth of rice',
+        total: 12000,
+        currency: 'CZK',
+        location: 'PT' }
+    end
+
+    subject do
+      described_class.new(data)
+    end
+
+    it "is true if the serialised data is the same" do
+      anotherExpense = described_class.new(data)
+      expect(subject == anotherExpense).to be(true)
+    end
+
+    it "is false if the serialised data is different" do
+      anotherExpense = described_class.new(data.merge(location: 'Barcelona'))
+      expect(subject == anotherExpense).to be(false)
     end
   end
 end

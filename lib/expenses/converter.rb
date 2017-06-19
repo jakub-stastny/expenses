@@ -25,6 +25,7 @@ module Expenses
     end
 
     def convert(dest_currency, amount)
+      return amount if @base_currency == dest_currency
       currency_rates[dest_currency] * amount
     rescue SocketError => error
       raise ConversionError.new(error)

@@ -69,6 +69,10 @@ module Expenses
       end
     end
 
+    def ==(anotherExpense)
+      self.serialise == anotherExpense.serialise
+    end
+
     private
     def validate_date(date)
       unless date.is_a?(Date)
