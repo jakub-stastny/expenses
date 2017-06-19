@@ -17,7 +17,7 @@ module Expenses
         print_weekly_report
         print_location_report
 
-        puts "<bold>Total:</bold> #{self.report_in_all_currencies(@expenses)}".colourise
+        puts "\n<bold>Total:</bold> #{self.report_in_all_currencies(@expenses)}".colourise
 
         # Save to persist addition of missing total EUR/USD.
         # We cannot do so conditionally, as expenses are already loaded with these values
@@ -37,18 +37,40 @@ module Expenses
             expenses = @expenses.select { |expense| expense.date.year == monday.year && expense.date.month == monday.month }
             puts "<blue>#{monday.strftime('%B')} #{monday.year}</blue>:".colourise(bold: true)
             self.report(expenses)
-            self.report_locations(expenses); puts
           end
         end
       end
 
       def print_location_report
-        # TODO
-        puts "Spendings per location:"
+        puts "<bold>Spendings per location:</bold>".colourise
+        @expenses.map(&:location).uniq.each do |location|
+          x = report_currencies(spendings_per_location[location][:expenses]) do |amount|
+            amount / spendings_per_location[location][:days]
+          end
+          puts "~ <yellow.bold>#{location}</yellow.bold> #{self.report_currencies(@expenses)} (per day: #{x})".colourise
+        end
+      end
+
+      def spendings_per_location
+        results = Hash.new do |hash, key|
+          hash[key] = {days: 0, expenses: Array.new}
+        end
+
+        @expenses.each.with_index do |expense, index|
+          next if index == 0
+          previous_expense = @expenses[index - 1]
+          if previous_expense.location == expense.location
+            days = (expense.date - previous_expense.date).to_i
+            results[expense.location][:days] += days
+            results[expense.location][:expenses] << expense
+          end
+        end
+
+        results
       end
 
       def report(expenses)
-        all_tags = expenses.map(&:tag).uniq.map do |tag|
+        all_tags = expenses.group_by(&:tag).map do |tag, expenses|
           "<cyan>#{tag}</cyan> #{self.report_currencies(expenses)}"
         end
 
@@ -59,14 +81,7 @@ module Expenses
         puts "<bold>Spendings by tags:</bold> #{all_tags.join(' ')}".colourise
         puts "<bold>Spendings by category:</bold> #{all_types.join(' ')}".colourise
         puts "<bold>Total:</bold> #{self.report_in_all_currencies(expenses)}".colourise
-      end
-
-      def report_locations(expenses)
-        all_locations = expenses.group_by(&:location).map do |location, expenses|
-          "<yellow>#{location}</yellow> #{self.report_currencies(expenses)}"
-        end
-
-        puts "<bold>Locations:</bold> #{all_locations.join(' ')}".colourise
+        puts "<bold>Per day:</bold> #{self.report_currencies(expenses) { |amount| amount / 7 }}".colourise
       end
 
       def report_in_all_currencies(expenses)
@@ -77,8 +92,9 @@ module Expenses
         "#{all_currencies.join(', ')} (total <underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100})</underline>"
       end
 
-      def report_currencies(expenses)
-        "<underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100}</underline>"
+      def report_currencies(expenses, &block)
+        block = Proc.new { |amount| amount } if block.nil?
+        "<underline>€#{block.call(expenses.sum(&:total_eur)) / 100}</underline> <underline>$#{block.call(expenses.sum(&:total_usd)) / 100}</underline>"
       end
     end
   end
