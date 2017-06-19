@@ -42,7 +42,7 @@ module Expenses
       end
 
       def print_location_report
-        puts "<bold>Spendings per location:</bold>".colourise
+        puts "<blue>Spendings per location:</blue>".colourise(bold: true)
         @expenses.map(&:location).uniq.each do |location|
           x = report_currencies(spendings_per_location[location][:expenses]) do |amount|
             amount / spendings_per_location[location][:days]
@@ -81,20 +81,27 @@ module Expenses
         puts "<bold>Spendings by tags:</bold> #{all_tags.join(' ')}".colourise
         puts "<bold>Spendings by category:</bold> #{all_types.join(' ')}".colourise
         puts "<bold>Total:</bold> #{self.report_in_all_currencies(expenses)}".colourise
-        puts "<bold>Per day:</bold> #{self.report_currencies(expenses) { |amount| amount / 7 }}".colourise
+        # Dividing by 7 is inacurate if the week hasn't finished yet.
+        date = expenses.last.date
+        if Date.today.cweek == date.cweek
+          divide_by = (date.wday == 0) ? 7 : date.wday
+        else
+          divide_by = 7
+        end
+        puts "<bold>Per day:</bold> #{self.report_currencies(expenses) { |amount| amount / divide_by }}".colourise
       end
 
       def report_in_all_currencies(expenses)
         all_currencies = expenses.map(&:currency).uniq.map do |currency|
-          "#{currency} #{expenses.select { |line| line.currency == currency }.sum(&:total) / 100}"
+          "#{currency} #{expenses.select { |line| line.currency == currency }.sum(&:total) / 100.0}"
         end
 
-        "#{all_currencies.join(', ')} (total <underline>€#{expenses.sum(&:total_eur) / 100}</underline> <underline>$#{expenses.sum(&:total_usd) / 100})</underline>"
+        "#{all_currencies.join(', ')} (total <underline>€#{expenses.sum(&:total_eur) / 100.0}</underline> <underline>$#{expenses.sum(&:total_usd) / 100.0})</underline>"
       end
 
       def report_currencies(expenses, &block)
         block = Proc.new { |amount| amount } if block.nil?
-        "<underline>€#{block.call(expenses.sum(&:total_eur)) / 100}</underline> <underline>$#{block.call(expenses.sum(&:total_usd)) / 100}</underline>"
+        "<underline>€#{block.call(expenses.sum(&:total_eur)) / 100.0}</underline> <underline>$#{block.call(expenses.sum(&:total_usd)) / 100.0}</underline>"
       end
     end
   end
