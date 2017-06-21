@@ -17,4 +17,4 @@ rates and hence without the need for internet connection for doing reports.
 
 ## Environment variables
 
-`EXPENSE_DATA_FILE_PATH` defaults to `~/Dropbox/Data/Archive/Expenses/2017.json`.
+`EXPENSE_DATA_FILE_PATH` defaults to `~/Dropbox/Data/Data/Expenses/2017.json`.

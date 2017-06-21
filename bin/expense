@@ -3,7 +3,7 @@
 require 'expenses/commander'
 require 'refined-refinements/colours'
 
-DATA_FILE_PATH = ENV['EXPENSE_DATA_FILE_PATH'] || File.expand_path("~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.json")
+DATA_FILE_PATH = ENV['EXPENSE_DATA_FILE_PATH'] || File.expand_path("~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json")
 
 case ARGV.shift
 when 'add', 'a', '+'
@@ -40,4 +40,4 @@ expense <cyan>edit</cyan>, <cyan>e</cyan>    <bright_black># Edit expense data i
 
 <green.bold>Environment variables</green.bold>
 
-<yellow>EXPENSE_DATA_FILE_PATH</yellow> defaults to <green>~/Dropbox/Data/Archive/Expenses/#{Time.now.year}.json</green>
+<yellow>EXPENSE_DATA_FILE_PATH</yellow> defaults to <green>~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json</green>
