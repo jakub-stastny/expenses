@@ -45,7 +45,11 @@ module Expenses
         puts "<blue>Spendings per location:</blue>".colourise(bold: true)
         @expenses.map(&:location).uniq.each do |location|
           x = report_currencies(spendings_per_location[location][:expenses]) do |amount|
-            amount / spendings_per_location[location][:days]
+            if spendings_per_location[location][:days] > 0 # ?!
+              amount / spendings_per_location[location][:days]
+            else
+              0
+            end
           end
           puts "~ <yellow.bold>#{location}</yellow.bold> #{self.report_currencies(@expenses)} (per day: #{x})".colourise
         end
@@ -101,7 +105,11 @@ module Expenses
 
       def report_currencies(expenses, &block)
         block = Proc.new { |amount| amount } if block.nil?
-        "<underline>€#{block.call(expenses.sum(&:total_eur)) / 100.0}</underline> <underline>$#{block.call(expenses.sum(&:total_usd)) / 100.0}</underline>"
+        total_eur = expenses.sum(&:total_eur)
+        total_usd = expenses.sum(&:total_usd)
+        eur = block.call(total_eur) / 100.0
+        usd = block.call(total_usd) / 100.0
+        "<underline>€#{eur}</underline> <underline>$#{usd}</underline>"
       end
     end
   end
