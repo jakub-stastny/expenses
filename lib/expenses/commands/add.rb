@@ -115,14 +115,18 @@ module Expenses
       end
 
       def prompt_tag(expenses)
-        tags = expenses.map(&:tag).uniq.compact
-        @prompt.prompt(:tag, 'Tag', options: tags) do
-          clean_value do |raw_value|
-            self.self_or_retrieve_by_index(tags, raw_value)
-          end
+        tags = expenses.map(&:tag).uniq.compact.sort # TODO: Sort by number of occurences.
+        comp = Proc.new { |s| tags.grep(/^#{Regexp.escape(s)}/) }
 
-          validate_clean_value do |clean_value|
-            clean_value.match(/^#[a-z_]+$/)
+        @prompt.set_completion_proc(comp) do
+          @prompt.prompt(:tag, 'Tag', help: 'use tab completion') do
+            clean_value do |raw_value|
+              raw_value.strip
+            end
+
+            validate_clean_value do |clean_value|
+              clean_value.match(/^#[a-z_]+$/)
+            end
           end
         end
       end
