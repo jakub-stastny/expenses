@@ -1,5 +1,7 @@
 - Tag with 1.0.
 
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.
+- Which card was used?
+- Total and tip - merge into one line (like total without tip + tip or overall - total without tip).
 - Add quaterly and yearly reports.
 - Finish the review command based on metadata.last_review.{note,date}.
