@@ -1,10 +1,13 @@
+require 'refined-refinements/curses/app'
 require 'refined-refinements/cli/prompt'
 
 module Expenses
   module Commands
     class Add
+      using RR::ColourExts
+
       def initialize(manager)
-        @manager, @prompt = manager, RR::Prompt.new
+        @manager = manager
       end
 
       def run
@@ -14,21 +17,68 @@ module Expenses
           expenses = Array.new
         end
 
-        prompt_date
-        prompt_type
-        prompt_desc
-        prompt_total
-        prompt_tip
-        prompt_currency(expenses)
-        prompt_note
-        prompt_tag(expenses)
-        prompt_location(expenses)
+        App.new.run do |app, window|
+          @prompt = RR::Prompt.new do |prompt|
+            # TODO: Replace with app.readline(prompt)
+            window.write(prompt)
+            window.getstr
+          end
 
-        expenses << Expense.new(**@prompt.data)
+          # Required arguments, we ask for them explicitly.
+          prompt_type
+          prompt_desc
+          prompt_total
+          prompt_currency unless expenses.last
+          prompt_location unless expenses.last
+          prompt_tag(expenses)
 
-        @manager.save(expenses)
+          data = @prompt.data.merge(
+            date: Date.today,
+            currency: expenses.last.currency,
+            location: expenses.last.location)
+          expense = Expense.new(**data)
 
-        puts "\nExpense #{expenses.last.serialise.inspect} has been saved."
+          # Optional arguments or arguments with reasonable defaults.
+          # Can be changed from the commander.
+          app.commander("Press <green>e</green> to edit, <red>q</red> to quit, <magenta>v</magenta> to tag as a verb ...") do |commander_window, char|
+            case char
+            when '-'
+              expense.date -= 1
+              # log when was that such as "Monday xxx"
+            when '+'
+              unless expense.date == Date.today
+                expense.date += 1
+              else
+                # warn ...
+              end
+            when 't'
+              prompt_tip  # t
+            when 'c'
+              prompt_currency(expenses) # c
+            when 'n'
+              prompt_note
+            when 'l'
+              prompt_location(expenses) # l
+            when 'i'
+              window.write(expense.inspect)
+              window.refresh
+            when 'C' # TODO: How to make this work?
+              window.clear
+              require 'pry'; binding.pry
+            when 's'
+              expenses << expense
+              @manager.save(expenses)
+              raise QuitError.new # Quit the commaner.
+              app.destroy # Quit the app.
+
+              puts "\nExpense #{expenses.last.serialise.inspect} has been saved."
+            when 'q'
+              app.destroy
+            end
+          end
+        end
+
+
       rescue Interrupt
         puts; exit
       end
