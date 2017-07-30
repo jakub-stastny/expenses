@@ -1,7 +1,21 @@
 - Tag with 1.0.
 
+- add last to see what was the last item OR items of the last logged day.
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.
 - Which card was used?
 - Total and tip - merge into one line (like total without tip + tip or overall - total without tip).
 - Add quaterly and yearly reports.
 - Finish the review command based on metadata.last_review.{note,date}.
+- numbers could be expressions like 2 * 3.40
+
+- subcommand 'log' -> kniha jizd.
+
+prompt_date <= decent default (today)
+prompt_type
+prompt_desc
+prompt_total
+prompt_tip  <= decent default (0)
+prompt_currency(expenses)  <= decent default (last)
+prompt_note  <= decent default (nil)
+prompt_tag(expenses)
+prompt_location(expenses)  <= decent default (last)
