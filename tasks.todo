@@ -1,21 +1,20 @@
 - Tag with 1.0.
 
-- add last to see what was the last item OR items of the last logged day.
+The add command:
+- Shall I add income? Shall I add withdrawals? That way I can track running_total
+  even for cash and see the fees for withdrawals. Maybe even rides, no need to put
+  them on a subcommand. This way type would be redefined to [:expense, :income,
+  :withdrawal, :ride] to determine the right class to pass the data to.
+    => Each type would then need its own editor or prompt.
+- Add support for recurrent payments (#recurrent?).
+- Deprecate type or at least specify only if the tag doesn't explicitly imply category?
+- Finish the tag editor.
+- Quit input of e/t/n commands.
+- One tag? required? One is easier to manage in the CLI app.
+- Find <bright_black>.
+
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.
-- Which card was used?
-- Total and tip - merge into one line (like total without tip + tip or overall - total without tip).
+
 - Add quaterly and yearly reports.
 - Finish the review command based on metadata.last_review.{note,date}.
 - numbers could be expressions like 2 * 3.40
-
-- subcommand 'log' -> kniha jizd.
-
-prompt_date <= decent default (today)
-prompt_type
-prompt_desc
-prompt_total
-prompt_tip  <= decent default (0)
-prompt_currency(expenses)  <= decent default (last)
-prompt_note  <= decent default (nil)
-prompt_tag(expenses)
-prompt_location(expenses)  <= decent default (last)
