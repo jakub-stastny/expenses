@@ -1,4 +1,5 @@
 require 'json'
+require 'expenses/loggable_item'
 require 'expenses/expense'
 
 module Expenses
@@ -13,7 +14,7 @@ module Expenses
 
       raw_data_lines = JSON.parse(File.read(@data_file_path))
       raw_data_lines.map do |raw_data_line|
-        Expense.deserialise(raw_data_line)
+        LoggableItem.deserialise(raw_data_line)
       end
     rescue JSON::ParserError => error
       raise JSON::ParserError.new("JSON from #{@data_file_path} cannot be parsed: #{error.message}")

@@ -30,14 +30,15 @@ module Expenses
   end
 
   class Withdrawal < LoggableItem
-    def initialize(date:, total:, currency:, account:, location:, note: nil, fee: nil)
-      @date     = validate_date(date)
-      @total    = validate_amount_in_cents(total)
-      @currency = validate_currency(currency)
-      @account  = account
-      @location = location
-      @note     = note
-      @fee      = validate_amount_in_cents(fee) if fee
+    def initialize(date:, total:, currency:, account:, location:, running_total:, note: nil, fee: nil)
+      @date          = validate_date(date)
+      @total         = validate_amount_in_cents(total)
+      @currency      = validate_currency(currency)
+      @account       = account
+      @location      = location
+      @running_total = validate_amount_in_cents(running_total)
+      @note          = note
+      @fee           = validate_amount_in_cents(fee) if fee
     end
 
     # This has to be done after #initialize.
@@ -64,7 +65,7 @@ module Expenses
   class Expense < LoggableItem
     self.private_attributes = [:total_usd, :total_eur]
 
-    def initialize(date:, type:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, total_usd: nil, total_eur: nil, **rest)
+    def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, total_usd: nil, total_eur: nil, **rest)
       unless rest.empty?
         raise ArgumentError.new("Unexpected key(s): #{rest.keys.inspect}")
       end

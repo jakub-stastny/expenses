@@ -47,6 +47,7 @@ module Expenses
       end
 
       loggable_item_class = self.types[data[:type].to_sym] || raise("Unknown type #{data[:type]}.")
+      data.delete(:type)
       loggable_item_class.new(data.tap { |data|
         data[:date] = Date.parse(data[:date])
       })
