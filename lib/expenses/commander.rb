@@ -10,6 +10,13 @@ module Expenses
       Expenses::Commands::Add.new(manager).run
     end
 
+    def self.last(data_file_path)
+      require 'expenses/commands/last'
+
+      manager = Expenses::Manager.new(data_file_path)
+      Expenses::Commands::Last.new(manager).run
+    end
+
     def self.report(data_file_path)
       require 'expenses/commands/report'
 

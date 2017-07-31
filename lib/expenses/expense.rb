@@ -25,8 +25,10 @@ module Expenses
       })
     end
 
-    attr_accessor :date, :type, :desc, :total, :tip, :currency, :note, :tag, :location, :total_usd, :total_eur
-    def initialize(date:, type:, desc:, total:, tip: 0, currency:, note: nil, tag: nil, location:, total_usd: nil, total_eur: nil, **rest)
+    PRIVATE_ATTRIBUTES = [:total_usd, :total_eur, :running_total] # TODO: Should the running_total be here? We don't want to show it in the help.
+
+    attr_accessor :date, :type, :desc, :total, :tip, :location, :currency, :note, :tag, :payment_method, :running_total, :total_usd, :total_eur
+    def initialize(date:, type:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, running_total: nil, total_usd: nil, total_eur: nil, **rest)
       unless rest.empty?
         raise ArgumentError.new("Unexpected key(s): #{rest.keys.inspect}")
       end
@@ -40,6 +42,8 @@ module Expenses
       @note     = note
       @tag      = validate_tag(tag) if tag && ! tag.empty?
       @location = location
+      @payment_method = payment_method
+      @running_total = validate_amount_in_cents(running_total) if running_total
 
       @total_usd = if total_usd then validate_amount_in_cents(total_usd)
       elsif @currency == 'USD' then @total
@@ -57,10 +61,25 @@ module Expenses
       # Return nil if there is no connection.
     end
 
-    def serialise
+    def data
       keys = self.method(:initialize).parameters[0..-2].map(&:last)
       keys.reduce(Hash.new) do |result, key|
-        value = self.send(key)
+        result.merge(key => self.send(key))
+      end
+    end
+
+    def public_data
+      self.data.reduce(Hash.new) do |result, (key, value)|
+        unless PRIVATE_ATTRIBUTES.include?(key)
+          result.merge(key => value)
+        else
+          result
+        end
+      end
+    end
+
+    def serialise
+      self.data.reduce(Hash.new) do |result, (key, value)|
         unless [nil, 0, ''].include?(value)
           result.merge(key => value)
         else
