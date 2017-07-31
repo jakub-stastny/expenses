@@ -3,11 +3,25 @@
 require 'expenses/commander'
 require 'refined-refinements/colours'
 
-DATA_FILE_PATH = ENV['EXPENSE_DATA_FILE_PATH'] || File.expand_path("~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json")
+DATA_FILE_PATH  = ENV['EXPENSE_DATA_FILE_PATH']  || File.expand_path("~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json")
+CACHE_FILE_PATH = ENV['EXPENSE_CACHE_FILE_PATH'] || File.expand_path("~/Dropbox/Data/Data/Expenses/cache.json")
+
+# {running_total: {
+#   'FIO EUR'  => 100000,
+#   'cash EUR' => 20000,
+# }}
 
 case ARGV.shift
 when 'add', 'a', '+'
   Expenses::Commander.add(DATA_FILE_PATH)
+when 'withdrawal', 'withdraw', 'w' # List or add.
+  Expenses::Commander.withdrawal(DATA_FILE_PATH)
+when 'income' # List or add.
+  Expenses::Commander.income(DATA_FILE_PATH)
+when 'ride' # List or add.
+  Expenses::Commander.ride(DATA_FILE_PATH)
+when 'balance'
+  Expenses::Commander.balance(DATA_FILE_PATH)
 when 'last', 'l'
   Expenses::Commander.last(DATA_FILE_PATH)
 when 'report', 'r'

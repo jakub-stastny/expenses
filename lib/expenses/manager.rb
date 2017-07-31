@@ -19,6 +19,28 @@ module Expenses
       raise JSON::ParserError.new("JSON from #{@data_file_path} cannot be parsed: #{error.message}")
     end
 
+    def items
+      @items ||= self.parse
+    end
+
+    def filter_type(type_name)
+      self.items.select do |item|
+        item.type == type_name
+      end
+    end
+
+    def expenses
+      self.filter_type(:expense)
+    end
+
+    def withdrawals
+      self.filter_type(:withdrawal)
+    end
+
+    def income_items
+      self.filter_type(:income)
+    end
+
     def save(expenses)
       final_json = JSON.pretty_generate(expenses.map(&:serialise))
       File.open(@data_file_path, 'w') do |file|

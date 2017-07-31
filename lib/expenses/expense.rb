@@ -1,40 +1,75 @@
-require 'date'
-require 'expenses/converter'
+require 'expenses/loggable_item'
 
 module Expenses
-  class Expense
-    TYPES = ['indulgence', 'essential', 'travelling', 'long_term', 'gift']
-
-    def self.deserialise(data)
-      data = data.reduce(Hash.new) do |result, (key, value)|
-        result.merge(key.to_sym => value)
-      end
-
-      # The following would happen anyway, we're only providing a better message.
-      required_keys = self.instance_method(:initialize).parameters[0..-2].
-        select { |type, name| type == :keyreq }.map(&:last)
-
-      unless required_keys.all? { |required_key| data.has_key?(required_key) }
-        missing_keys = required_keys - data.keys
-        raise ArgumentError.new(
-          "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}")
-      end
-
-      self.new(data.tap { |data|
-        data[:date] = Date.parse(data[:date])
-      })
+  # TODO: Mapping of accounts to payment methods:
+  # FIO EUR -> FIO EUR VISA or something like that.
+  #
+  # We could even just use the bank account, but PayPal
+  # breaks the 1:1 mapping.
+  #
+  # Also sometimes the expense actually is a bank transfer rather than a bank
+  # transaction, though it's similar enough (and rare enough) that keeping it
+  # together would make the payment_methods easier to work with.
+  #
+  # Maybe I can separate it into bank_account x payment method and have there
+  # same contract as between location x currency.
+  #
+  # TODO: What about transfer fees? Should we log them as well.
+  class Income < LoggableItem
+    def initialize(date:, total:, currency:, account:)
+      @date     = validate_date(date)
+      @total    = validate_amount_in_cents(total)
+      @currency = validate_currency(currency)
+      @account  = account
     end
 
-    PRIVATE_ATTRIBUTES = [:total_usd, :total_eur, :running_total] # TODO: Should the running_total be here? We don't want to show it in the help.
+    # This has to be done after #initialize.
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
 
-    attr_accessor :date, :type, :desc, :total, :tip, :location, :currency, :note, :tag, :payment_method, :running_total, :total_usd, :total_eur
-    def initialize(date:, type:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, running_total: nil, total_usd: nil, total_eur: nil, **rest)
+  class Withdrawal < LoggableItem
+    def initialize(date:, total:, currency:, account:, location:, note: nil, fee: nil)
+      @date     = validate_date(date)
+      @total    = validate_amount_in_cents(total)
+      @currency = validate_currency(currency)
+      @account  = account
+      @location = location
+      @note     = note
+      @fee      = validate_amount_in_cents(fee) if fee
+    end
+
+    # This has to be done after #initialize.
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
+
+  class Ride < LoggableItem
+    def initialize(date:, car:, distance:, where:, note: nil)
+      @date     = validate_date(date)
+      @car      = car
+      @distance = validate_amount_in_cents(distance)
+      @where    = where
+      @note     = note
+    end
+
+    # This has to be done after #initialize.
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
+
+  class Expense < LoggableItem
+    self.private_attributes = [:total_usd, :total_eur]
+
+    def initialize(date:, type:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, total_usd: nil, total_eur: nil, **rest)
       unless rest.empty?
         raise ArgumentError.new("Unexpected key(s): #{rest.keys.inspect}")
       end
 
       @date     = validate_date(date)
-      @type     = validate_type(type)
       @desc     = validate_desc(desc)
       @total    = validate_amount_in_cents(total) # Including tip.
       @tip      = validate_amount_in_cents(tip)
@@ -43,7 +78,6 @@ module Expenses
       @tag      = validate_tag(tag) if tag && ! tag.empty?
       @location = location
       @payment_method = payment_method
-      @running_total = validate_amount_in_cents(running_total) if running_total
 
       @total_usd = if total_usd then validate_amount_in_cents(total_usd)
       elsif @currency == 'USD' then @total
@@ -54,91 +88,9 @@ module Expenses
       else convert_currency(@total, @currency, 'EUR') end
     end
 
-    def convert_currency(amount, base_currency, dest_currency)
-      converter = Converter.new(base_currency)
-      converter.convert(dest_currency, amount).round # It's already in cents.
-    rescue ConversionError
-      # Return nil if there is no connection.
-    end
-
-    def data
-      keys = self.method(:initialize).parameters[0..-2].map(&:last)
-      keys.reduce(Hash.new) do |result, key|
-        result.merge(key => self.send(key))
-      end
-    end
-
-    def public_data
-      self.data.reduce(Hash.new) do |result, (key, value)|
-        unless PRIVATE_ATTRIBUTES.include?(key)
-          result.merge(key => value)
-        else
-          result
-        end
-      end
-    end
-
-    def serialise
-      self.data.reduce(Hash.new) do |result, (key, value)|
-        unless [nil, 0, ''].include?(value)
-          result.merge(key => value)
-        else
-          result
-        end
-      end
-    end
-
-    def ==(anotherExpense)
-      self.serialise == anotherExpense.serialise
-    end
-
-    private
-    def validate_date(date)
-      unless date.is_a?(Date)
-        raise TypeError.new("Date has to be an instance of Date.")
-      end
-
-      date
-    end
-
-    def validate_type(type)
-      unless TYPES.include?(type)
-        raise ArgumentError.new("Unknown type: #{type}.")
-      end
-
-      type
-    end
-
-    def validate_desc(desc)
-      unless desc.is_a?(String)
-        raise TypeError.new("Description has to be a string.")
-      end
-
-      desc
-    end
-
-    def validate_amount_in_cents(amount)
-      unless amount.integer?
-        raise TypeError.new("Amount has to be a round number.")
-      end
-
-      amount
-    end
-
-    def validate_currency(currency)
-      unless currency.match(/^[A-Z]{3}$/)
-        raise ArgumentError.new("Currency has to be a three-number code such as CZK.")
-      end
-
-      currency
-    end
-
-    def validate_tag(tag)
-      unless tag.match(/^#[a-z_]+$/)
-        raise ArgumentError.new("Tag has to be a #word_or_two.")
-      end
-
-      tag
+    # This has to be done after #initialize.
+    self.attributes.each do |attribute|
+      attr_accessor attribute
     end
   end
 end

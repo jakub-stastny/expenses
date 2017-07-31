@@ -1,16 +1,15 @@
 - Tag with 1.0.
 
+- expense set - running total.
 The add command:
-- Shall I add income? Shall I add withdrawals? That way I can track running_total
-  even for cash and see the fees for withdrawals. Maybe even rides, no need to put
-  them on a subcommand. This way type would be redefined to [:expense, :income,
-  :withdrawal, :ride] to determine the right class to pass the data to.
-    => Each type would then need its own editor or prompt.
+- Allow adding income, rides and withdrawals.
+- Track running_total for cash.
 - Add support for recurrent payments (#recurrent?).
-- Deprecate type or at least specify only if the tag doesn't explicitly imply category?
 - Finish the tag editor.
 - Quit input of e/t/n commands.
 - One tag? required? One is easier to manage in the CLI app.
+  # TYPES = ['indulgence', 'essential', 'travelling', 'long_term', 'gift']
+  tag :gift, :long_term
 - Find <bright_black>.
 
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.

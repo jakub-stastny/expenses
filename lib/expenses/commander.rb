@@ -10,6 +10,13 @@ module Expenses
       Expenses::Commands::Add.new(manager).run
     end
 
+    def self.withdrawal(data_file_path)
+      require 'expenses/commands/withdrawal'
+
+      manager = Expenses::Manager.new(data_file_path)
+      Expenses::Commands::Withdrawal.new(manager).run
+    end
+
     def self.last(data_file_path)
       require 'expenses/commands/last'
 
