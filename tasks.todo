@@ -13,11 +13,12 @@ The add command:
     tag :gift, :long_term
 - Quit input of e/t/n commands.
 - Find <bright_black>.
+- Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and
+  was worth the price and didn't enjoy.
+- Finish the review command based on metadata.last_review.{note,date}.
+- Shall the total be total without tip? I think it makes more sense, esp. with coins.
 
 - Tag with 1.0.
 
-- Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.
-
 - Add quaterly and yearly reports.
-- Finish the review command based on metadata.last_review.{note,date}.
-- numbers could be expressions like 2 * 3.40
+- Numbers could be expressions like 2 * 3.40.
