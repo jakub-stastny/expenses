@@ -1,6 +1,6 @@
-- Tag with 1.0.
-
 The add command:
+- Improve the commander (along with the flashcard commander). Help should go together
+  with each command.
 - Allow adding income, rides and withdrawals.
 - Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
 - Track running_total directly for accounts, not only for cash (have an equivalent
@@ -13,6 +13,8 @@ The add command:
     tag :gift, :long_term
 - Quit input of e/t/n commands.
 - Find <bright_black>.
+
+- Tag with 1.0.
 
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and was worth the price and didn't enjoy. This can however be done in the note.
 
