@@ -4,7 +4,7 @@ module Expenses
   module Commands
     class WithdrawalCommand < RR::Command
       self.help = <<-EOF
-        # TODO
+        #{self.main_command} <red>withdrawal</red> <bright_black># TODO.</bright_black>
       EOF
 
       def initialize(manager, args)

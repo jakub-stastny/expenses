@@ -41,10 +41,19 @@ module Expenses
     end
 
     require 'expenses/commands/add'
-    self.command(:add, Commands::AddCommand)
+    self.command(:+, Commands::AddCommand)
 
     require 'expenses/commands/withdrawal'
     self.command(:withdrawal, Commands::WithdrawalCommand)
+
+    require 'expenses/commands/income'
+    self.command(:income, Commands::IncomeCommand)
+
+    require 'expenses/commands/ride'
+    self.command(:ride, Commands::RideCommand)
+
+    require 'expenses/commands/balance'
+    self.command(:balance, Commands::BalanceCommand)
 
     require 'expenses/commands/last'
     self.command(:last, Commands::LastCommand)
@@ -58,18 +67,7 @@ module Expenses
     require 'expenses/commands/console'
     self.command(:console, Commands::ConsoleCommand)
 
-    # def self.console(data_file_path)
-    #   # Console usage:
-    #   # Use manager.save(expenses) to save your modifications.
-    #   manager  = Expenses::Manager.new(data_file_path)
-    #   expenses = manager.parse
-    #   require 'pry'; binding.pry
-    # end
-
-    # def self.edit(data_file_path)
-    #   system(ENV['EDITOR'] || 'vim', data_file_path)
-    # end
     require 'expenses/commands/edit'
-    self.command(:console, Commands::EditCommand)
+    self.command(:edit, Commands::EditCommand)
   end
 end

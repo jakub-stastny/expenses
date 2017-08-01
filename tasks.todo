@@ -1,6 +1,4 @@
 The add command:
-- Improve the commander (along with the flashcard commander). Help should go together
-  with each command.
 - Allow adding income, rides and withdrawals.
 - Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
 - Track running_total directly for accounts, not only for cash (have an equivalent

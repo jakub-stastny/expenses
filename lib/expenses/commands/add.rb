@@ -7,7 +7,7 @@ module Expenses
       using RR::ColourExts
 
       self.help = <<-EOF
-        #{self.main_command} <red>add</red> [word] [translations]
+        #{self.main_command} <red>+</red> <bright_black># TODO.</bright_black>
       EOF
 
       def initialize(manager, args)

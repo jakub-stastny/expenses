@@ -4,7 +4,7 @@ module Expenses
       using RR::ColourExts
 
       self.help = <<-EOF
-        #{self.main_command} <red>balance</red> [word] [translations]
+        #{self.main_command} <red>edit</red> <bright_black># Edit the expense file in $EDITOR.</bright_black>
       EOF
 
       def initialize(manager, args)
@@ -12,7 +12,7 @@ module Expenses
       end
 
       def run
-        abort "To be done."
+        system(ENV['EDITOR'] || 'vim', @manager.data_file_path)
       end
     end
   end
