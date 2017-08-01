@@ -2,18 +2,23 @@ require 'refined-refinements/colours'
 
 module Expenses
   module Commands
-    class Last
+    class LastCommand < RR::Command
       using RR::ColourExts
 
-      def initialize(manager)
-        @manager, @expenses = manager, manager.parse
+      self.help = <<-EOF
+        # TODO
+      EOF
+
+      def initialize(manager, args)
+        @manager, @args = manager, args
       end
 
       def run
-        unless @expenses.empty?
+        expenses = manager.parse
+        unless expenses.empty?
           puts "Last day items:".colourise(bold: true)
-          @expenses.each do |expense|
-            if expense.date == @expenses.last.date
+          expenses.each do |expense|
+            if expense.date == expenses.last.date
               puts "- #{expense.desc}"
             end
           end

@@ -3,12 +3,15 @@ require 'refined-refinements/cli/prompt'
 
 module Expenses
   module Commands
-    class Add
+    class AddCommand < RR::Command
       using RR::ColourExts
 
-      def initialize(manager)
-        @manager = manager
-        @cache ||= Hash.new
+      self.help = <<-EOF
+        #{self.main_command} <red>add</red> [word] [translations]
+      EOF
+
+      def initialize(manager, args)
+        @manager, @args, @cache = manager, args, Hash.new
       end
 
       def run

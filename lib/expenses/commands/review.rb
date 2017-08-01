@@ -2,11 +2,16 @@ require 'refined-refinements/colours'
 
 module Expenses
   module Commands
-    class Review
+    class ReviewCommand < RR::Command
       using RR::ColourExts
 
-      def initialize(manager)
-        @manager, @expenses = manager, manager.parse
+      self.help = <<-EOF
+        # TODO
+      EOF
+
+      def initialize(manager, args)
+        @manager, @args = manager, args
+        @expenses = manager.parse
       end
 
       def run

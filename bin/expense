@@ -3,58 +3,16 @@
 require 'expenses/commander'
 require 'refined-refinements/colours'
 
-DATA_FILE_PATH  = ENV['EXPENSE_DATA_FILE_PATH']  || File.expand_path("~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json")
-CACHE_FILE_PATH = ENV['EXPENSE_CACHE_FILE_PATH'] || File.expand_path("~/Dropbox/Data/Data/Expenses/cache.json")
+data_file_path = ENV['EXPENSE_DATA_FILE_PATH'] ||
+  File.expand_path("~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json")
 
-# {running_total: {
-#   'FIO EUR'  => 100000,
-#   'cash EUR' => 20000,
-# }}
+commander = Expenses::Commander.new
+command_name = (ARGV.first || '-h').to_sym
 
-case ARGV.shift
-when 'add', 'a', '+'
-  Expenses::Commander.add(DATA_FILE_PATH)
-when 'withdrawal', 'withdraw', 'w' # List or add.
-  Expenses::Commander.withdrawal(DATA_FILE_PATH)
-when 'income' # List or add.
-  Expenses::Commander.income(DATA_FILE_PATH)
-when 'ride' # List or add.
-  Expenses::Commander.ride(DATA_FILE_PATH)
-when 'balance'
-  Expenses::Commander.balance(DATA_FILE_PATH)
-when 'last', 'l'
-  Expenses::Commander.last(DATA_FILE_PATH)
-when 'report', 'r'
-  Expenses::Commander.report(DATA_FILE_PATH)
-when 'review'
-  Expenses::Commander.review(DATA_FILE_PATH)
-when 'console', 'c'
-  Expenses::Commander.console(DATA_FILE_PATH)
-when 'edit', 'e'
-  Expenses::Commander.edit(DATA_FILE_PATH)
+if commander.commands.include?(command_name)
+  commander.run(command_name, data_file_path, ARGV[1..-1])
+elsif [:'-h', :'--help'].include?(command_name)
+  puts(commander.help)
 else
-  using RR::ColourExts
-  puts DATA.read.colourise.gsub(/#\{[^}]+\}/) { |match| eval(match[2..-2]) }
+  abort(commander.help)
 end
-
-__END__
-<red.bold>Expenses</red.bold>
-
-Command-line utility for keeping track of expenses in multiple currencies.
-
-Original currency is always saved alongside the EUR and USD equivalent <underline>at the time</underline>.
-This way we can report in either EUR or USD without having to look for old conversion
-rates and hence without the need for internet connection for doing reports.
-
-<green.bold>Options</green.bold>
-
-expense <cyan>add</cyan>, <cyan>a</cyan>, <cyan>+</cyan>  <bright_black># Interactively add a new expense.</bright_black>
-expense <cyan>last</cyan>, <cyan>l</cyan>  <bright_black># Last day spendings.</bright_black>
-expense <cyan>report</cyan>, <cyan>r</cyan>  <bright_black># Report on your spendings.</bright_black>
-expense <cyan>review</cyan>     <bright_black># Review long-term purchases.</bright_black>
-expense <cyan>console</cyan>, <cyan>c</cyan> <bright_black># Launch Ruby console with expense data loaded.</bright_black>
-expense <cyan>edit</cyan>, <cyan>e</cyan>    <bright_black># Edit expense data in $EDITOR.</bright_black>
-
-<green.bold>Environment variables</green.bold>
-
-<yellow>EXPENSE_DATA_FILE_PATH</yellow> defaults to <green>~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json</green>
