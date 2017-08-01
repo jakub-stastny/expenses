@@ -199,21 +199,19 @@ module Expenses
           commander.command('e') do |commander_window|
             @prompt = self.prompt_proc(app, commander_window)
 
-            # TODO: Use prompt here.
             editable_attributes = {
               desc:           -> { prompt_desc },
               total:          -> { prompt_money(:total, 'Total') },
               location:       -> { @prompt.prompt(:location, 'Location') { clean_value { |raw_value| raw_value.strip } } },
               currency:       -> { @prompt.prompt(:currency, 'Currency') { clean_value { |raw_value| raw_value.strip } } }, # TODO: match /^[A-Z]{3}$/.
-              payment_method: -> { @prompt.prompt(:payment_method, 'Payment method') { clean_value { |raw_value| raw_value.strip } } }, # TODO: Ask for how much is there -> set expense.running_total.
-              tag:            -> { @prompt.prompt(:tag, 'Tag') { clean_value { |raw_value| raw_value.strip } } } # TODO: match /^#/ and no spaces.
+              payment_method: -> { @prompt.prompt(:payment_method, 'Payment method') { clean_value { |raw_value| raw_value.strip } } } # TODO: Ask for how much is there -> set expense.running_total.
             }
 
             commander_window.setpos(Curses.lines - 3, 0)
             input = app.readline("<bold>Which attribute?</bold> ", commander_window)
-            if editable_attributes.keys.include?(input.to_sym)
+            if editable_attributes.keys.include?(key = input.to_sym)
               attribute = input.to_sym
-              new_value = app.readline("New value: ", commander_window)
+              new_value = editable_attributes[key].call
               expense.send("#{attribute}=", new_value)
             else
               # log ...

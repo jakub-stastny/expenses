@@ -1,6 +1,3 @@
-- expense on its own should enter the command mode, where 'a/+' (or e/i/w) is add,
-  b is balance, l is last etc.
-
 The add command:
 - Allow adding income, rides and withdrawals.
   - Later add these into the add command and switch between them by 't' (type).
@@ -13,14 +10,16 @@ The add command:
 - Add support for recurrent payments (#recurrent?).
 - Finish the tag editor.
   - One tag? required? One is easier to manage in the CLI app.
-    # TYPES = ['indulgence', 'essential', 'travelling', 'long_term', 'gift']
-    tag :gift, :long_term
+    # ['indulgence', 'essential', 'travelling', 'long_term', 'gift']
 - Quit input of e/t/n commands.
 - Find <bright_black>.
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and
   was worth the price and didn't enjoy.
-- Finish the review command based on metadata.last_review.{note,date}.
 - Shall the total be total without tip? I think it makes more sense, esp. with coins.
+
+- Finish the review command based on metadata.last_review.{note,date}.
+- bin/expense on its own should enter the command mode, where 'a/+' (or e/i/w) is add,
+  b is balance, l is last etc.
 
 - Tag with 1.0.
 
