@@ -1,22 +1,27 @@
 require 'refined-refinements/curses/app'
 require 'refined-refinements/cli/prompt'
+require 'expenses/utils'
 
+# Improve 'e'. Allow esc to quit.
+#   Maybe split into 3 windows (expense data, middle, status line)?
+#     That conflicts with App.new.run do |app, window|
+# Improve the tag editor.
 module Expenses
   module Commands
     class AddCommand < RR::Command
       using RR::ColourExts
 
       self.help = <<-EOF
-        #{self.main_command} <red>+</red> <bright_black># TODO.</bright_black>
+        #{self.main_command} <red>+</red> <bright_black># Log a new expense.</bright_black>
       EOF
 
-      def initialize(manager, args)
-        @manager, @args, @cache = manager, args, Hash.new
+      def initialize(collection, args)
+        @collection, @args, @cache = collection, args, Hash.new
       end
 
       def run
         begin
-          expenses = @manager.parse
+          expenses = @collection.expenses
         rescue Errno::ENOENT
           expenses = Array.new
         end
@@ -38,7 +43,6 @@ module Expenses
           prompt_desc
           prompt_money(:total, 'Total')
 
-          most_common_type = self.most_common_attribute_value(expenses, :type)
           most_common_tag  = self.most_common_attribute_value(expenses, :tag)
 
           # Here we could guess that if the total is over n, we'd default
@@ -48,7 +52,6 @@ module Expenses
           most_common_payment_method = self.most_common_attribute_value(expenses, :payment_method)
 
           data = @prompt.data.merge(
-            type: most_common_type,
             date: Date.today,
             currency: expenses.last ? expenses.last.currency : 'EUR',
             location: expenses.last ? expenses.last.location : 'online',
@@ -143,7 +146,7 @@ module Expenses
           end
 
           {
-            type: 't', currency: 'c', payment_method: 'p'
+            currency: 'c', payment_method: 'p'
           }.each do |attribute, command|
             commander.command(command) do |commander_window|
               cycle_between_values(expenses, expense, attribute)
@@ -218,12 +221,12 @@ module Expenses
           end
 
           commander.command('s', 'save') do |commander_window|
-            expenses << expense
-            @manager.save(expenses)
+            @collection << expense
+            @collection.save
             raise QuitError.new # Quit the commander.
             app.destroy # Quit the app.
 
-            puts "\nExpense #{expenses.last.serialise.inspect} has been saved."
+            puts "\nExpense #{@collection.items.last.serialise.inspect} has been saved."
           end
 
           commander.command('q', 'quit without saving') do |commander_window|
@@ -232,7 +235,6 @@ module Expenses
 
           help = {
             date: "Set to previous/next day by pressing <red.bold>d</red.bold>/<red.bold>D</red.bold>.",
-            type: "Press <red.bold>t</red.bold>/<red.bold>T</red.bold> to cycle between values.",
             desc: "Press <red.bold>e</red.bold> to edit.",
             total: "Press <red.bold>e</red.bold> to edit.",
             location: "Press <red.bold>l</red.bold>/<red.bold>L</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
@@ -243,11 +245,11 @@ module Expenses
             tag: "Press <red.bold>#</red.bold> to set."
           }
 
-          attributes_with_guessed_defaults = [:date, :type, :location, :payment_method, :tag]
+          attributes_with_guessed_defaults = [:date, :location, :payment_method, :tag]
 
           commander.loop do |commander, commander_window|
             items = expense.public_data.reduce(Array.new) do |buffer, (key, value)|
-              if Expense::PRIVATE_ATTRIBUTES.include?(key)
+              if Expense.private_attributes.include?(key)
                 buffer
               else
                 key_tag = attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
@@ -280,13 +282,7 @@ module Expenses
           app.destroy
         end
 
-        expense = expenses.last
-        update_running_total(expenses[0..-2], expense)
-        if expense.running_total
-          puts "~ Running total for <red>#{expense.payment_method}</red> is <green>#{format_cents_to_money(expense.running_total)}</green>.".colourise(bold: true)
-        else
-          puts "~ Unknown running total for <red>#{expense.payment_method}</red>.".colourise(bold: true)
-        end
+        report_end_balance(expenses)
 
       rescue Interrupt
         puts; exit
@@ -424,7 +420,9 @@ module Expenses
           expense.location == location
         end
 
-        expense.currency = last_same_location_expense.currency
+        if last_same_location_expense
+          expense.currency = last_same_location_expense.currency
+        end
       end
 
       def update_payment_method_if_online(expenses, expense)
@@ -432,17 +430,18 @@ module Expenses
         expense.payment_method = most_common_online_payment_method if most_common_online_payment_method
       end
 
-      def update_running_total(expenses, expense)
-        return if expense.payment_method == 'cash'
+      def report_end_balance(expenses)
+        expense = expenses.last
+        running_total = Utils.running_total_for(@collection, expense)
 
-        payment_method = expense.payment_method
-        last_expense_with_the_same_payment_method = expenses.reverse.find do |expense|
-          expense.payment_method == payment_method
+        payment_method_label = expense.payment_method == 'cash' ? expense.currency : expense.payment_method
+
+        if running_total
+          # TODO: Colours based on how much it is (red if less than 500 etc).
+          puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{format_cents_to_money(running_total)}</yellow.bold>.".colourise
+        else
+          puts "<yellow>~</yellow> Unknown running total for <red>#{payment_method_label}</red>.".colourise
         end
-
-        return unless last_expense_with_the_same_payment_method
-
-        expense.running_total = last_expense_with_the_same_payment_method.running_total - expense.total
       end
 
       def highlight(value)

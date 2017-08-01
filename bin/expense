@@ -3,14 +3,11 @@
 require 'expenses/commander'
 require 'refined-refinements/colours'
 
-data_file_path = ENV['EXPENSE_DATA_FILE_PATH'] ||
-  File.expand_path("~/Dropbox/Data/Data/Expenses/#{Time.now.year}.json")
-
 commander = Expenses::Commander.new
 command_name = (ARGV.first || '-h').to_sym
 
 if commander.commands.include?(command_name)
-  commander.run(command_name, data_file_path, ARGV[1..-1])
+  commander.run(command_name, ARGV[1..-1])
 elsif [:'-h', :'--help'].include?(command_name)
   puts(commander.help)
 else

@@ -5,13 +5,13 @@ module Expenses
         #{self.main_command} <red>console</red> <bright_black># Open Ruby console with expenses loaded.</bright_black>
       EOF
 
-      def initialize(manager, args)
-        @manager, @args = manager, args
+      def initialize(collection, args)
+        @collection, @args = collection, args
       end
 
       # Console usage:
-      # expenses = @manager.parse
-      # @manager.save(expenses)
+      # expenses = @collection.expenses
+      # @collection.save(expenses)
       def run
         require 'pry'; binding.pry
       end

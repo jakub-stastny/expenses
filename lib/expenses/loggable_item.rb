@@ -53,6 +53,10 @@ module Expenses
       })
     end
 
+    def type
+      self.class.type_name
+    end
+
     def data
       keys = self.method(:initialize).parameters[0..-2].map(&:last)
       keys.reduce(Hash.new) do |result, key|

@@ -3,13 +3,13 @@ require 'refined-refinements/cli/prompt'
 module Expenses
   module Commands
     class Add
-      def initialize(manager)
-        @manager, @prompt = manager, RR::Prompt.new
+      def initialize(collection)
+        @collection, @prompt = collection, RR::Prompt.new
       end
 
       def run
         begin
-          expenses = @manager.parse
+          expenses = @collection.expenses
         rescue Errno::ENOENT
           expenses = Array.new
         end
@@ -26,7 +26,7 @@ module Expenses
 
         expenses << Expense.new(**@prompt.data)
 
-        @manager.save(expenses)
+        @collection.save(expenses)
 
         puts "\nExpense #{expenses.last.serialise.inspect} has been saved."
       rescue Interrupt

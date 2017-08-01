@@ -9,12 +9,12 @@ module Expenses
         #{self.main_command} <red>last</red> <bright_black># TODO.</bright_black>
       EOF
 
-      def initialize(manager, args)
-        @manager, @args = manager, args
+      def initialize(collection, args)
+        @collection, @args = collection, args
       end
 
       def run
-        expenses = manager.parse
+        expenses = collection.expenses
         unless expenses.empty?
           puts "Last day items:".colourise(bold: true)
           expenses.each do |expense|

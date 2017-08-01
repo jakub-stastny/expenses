@@ -1,5 +1,5 @@
 require 'expenses/expense'
-require 'expenses/manager'
+require 'expenses/collection'
 require 'refined-refinements/cli/commander'
 
 # <red.bold>Expenses</red.bold>
@@ -29,14 +29,10 @@ module Expenses
       super('Expenses')
     end
 
-    def manager
-      Expenses::Manager.new(data_file_path)
-    end
-
-    def run(command_name, data_file_path, args)
+    def run(command_name, args)
       command_class = self.class.commands[command_name]
-      manager = Expenses::Manager.new(data_file_path)
-      command = command_class.new(manager, args)
+      collection = Expenses::Collection.new("#{Time.now.year}.json")
+      command = command_class.new(collection, args)
       command.run
     end
 

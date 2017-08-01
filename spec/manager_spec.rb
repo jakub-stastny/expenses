@@ -1,6 +1,6 @@
-require 'expenses/manager'
+require 'expenses/collection'
 
-describe Expenses::Manager do
+describe Expenses::collection do
   let(:data_file_path) do
     'spec/data/expenses.json'
   end

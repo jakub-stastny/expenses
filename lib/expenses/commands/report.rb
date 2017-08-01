@@ -9,9 +9,9 @@ module Expenses
         #{self.main_command} <red>report</red> <bright_black># TODO.</bright_black>
       EOF
 
-      def initialize(manager, args)
-        @manager, @args = manager, args
-        @expenses = manager.parse
+      def initialize(collection, args)
+        @collection, @args = collection, args
+        @expenses = collection.expenses
       end
 
       def run
@@ -27,7 +27,7 @@ module Expenses
         # Save to persist addition of missing total EUR/USD.
         # We cannot do so conditionally, as expenses are already loaded with these values
         # even if they are not present in the expense file, so comparison is pointless.
-        @manager.save(@expenses)
+        @collection.save(@expenses)
       end
 
       def print_weekly_report

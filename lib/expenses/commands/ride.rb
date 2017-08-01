@@ -7,13 +7,13 @@ module Expenses
         #{self.main_command} <red>ride</red> <bright_black># TODO.</bright_black>
       EOF
 
-      def initialize(manager, args)
-        @manager, @args, @prompt = manager, args, RR::Prompt.new
+      def initialize(collection, args)
+        @collection, @args, @prompt = collection, args, RR::Prompt.new
       end
 
       def run
         begin
-          expenses = @manager.parse
+          expenses = @collection.expenses
         rescue Errno::ENOENT
           expenses = Array.new
         end

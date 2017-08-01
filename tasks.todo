@@ -1,5 +1,11 @@
+- expense on its own should enter the command mode, where 'a/+' (or e/i/w) is add,
+  b is balance, l is last etc.
+
 The add command:
 - Allow adding income, rides and withdrawals.
+  - Later add these into the add command and switch between them by 't' (type).
+    - That would need moving asking for desc & total into the main program and
+      also unloading the commands and replacing them.
 - Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
 - Track running_total directly for accounts, not only for cash (have an equivalent
   of the withdrawal object, maybe review that can be done manually (expense balance
