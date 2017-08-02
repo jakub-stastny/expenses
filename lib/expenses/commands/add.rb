@@ -204,7 +204,7 @@ module Expenses
               total:          -> { prompt_money(:total, 'Total') },
               location:       -> { @prompt.prompt(:location, 'Location') { clean_value { |raw_value| raw_value.strip } } },
               currency:       -> { @prompt.prompt(:currency, 'Currency') { clean_value { |raw_value| raw_value.strip } } }, # TODO: match /^[A-Z]{3}$/.
-              payment_method: -> { @prompt.prompt(:payment_method, 'Payment method') { clean_value { |raw_value| raw_value.strip } } } # TODO: Ask for how much is there -> set expense.running_total.
+              payment_method: -> { @prompt.prompt(:payment_method, 'Payment method') { clean_value { |raw_value| raw_value.strip } } } # TODO: Ask for how much is there -> set expense.balance.
             }
 
             commander_window.setpos(Curses.lines - 3, 0)
@@ -265,6 +265,7 @@ module Expenses
 
             expense_data = items.map do |(data, help)|
               data_length = data.gsub(/<[^>]+>/, '').length
+              # TODO: Log Snickers 4.40 and fix the next line.
               spaces = ' ' * (@longest_item_length - data_length)
               "  #{data}#{spaces} # #{help}"
             end
@@ -430,13 +431,13 @@ module Expenses
 
       def report_end_balance(expenses)
         expense = expenses.last
-        running_total = Utils.running_total_for(@collection, expense)
+        balance = Utils.balance_for(@collection, expense)
 
         payment_method_label = expense.payment_method == 'cash' ? expense.currency : expense.payment_method
 
-        if running_total
+        if balance
           # TODO: Colours based on how much it is (red if less than 500 etc).
-          puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{format_cents_to_money(running_total)}</yellow.bold>.".colourise
+          puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{format_cents_to_money(balance)}</yellow.bold>.".colourise
         else
           puts "<yellow>~</yellow> Unknown running total for <red>#{payment_method_label}</red>.".colourise
         end

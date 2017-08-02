@@ -30,15 +30,29 @@ module Expenses
   end
 
   class Withdrawal < LoggableItem
-    def initialize(date:, total:, currency:, account:, location:, running_total:, note: nil, fee: nil)
-      @date          = validate_date(date)
-      @total         = validate_amount_in_cents(total)
-      @currency      = validate_currency(currency)
-      @account       = account
-      @location      = location
-      @running_total = validate_amount_in_cents(running_total)
-      @note          = note
-      @fee           = validate_amount_in_cents(fee) if fee
+    def initialize(date:, total:, currency:, account:, location:, balance:, note: nil, fee: nil)
+      @date     = validate_date(date)
+      @total    = validate_amount_in_cents(total)
+      @currency = validate_currency(currency)
+      @account  = account
+      @location = location
+      @balance  = validate_amount_in_cents(balance)
+      @note     = note
+      @fee      = validate_amount_in_cents(fee) if fee
+    end
+
+    # This has to be done after #initialize.
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
+
+  class Balance < LoggableItem
+    def initialize(date:, account:, balance:, note: nil)
+      @date    = validate_date(date)
+      @account = account
+      @balance = validate_amount_in_cents(balance)
+      @note    = note
     end
 
     # This has to be done after #initialize.
@@ -54,6 +68,20 @@ module Expenses
       @distance = validate_amount_in_cents(distance)
       @where    = where
       @note     = note
+    end
+
+    # This has to be done after #initialize.
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
+
+  # Should refer to an ID (index?).
+  # Can be partial and include transfer fees.
+  class Refund < LoggableItem
+    def initialize(date:, note: nil)
+      @date = validate_date(date)
+      @note = note
     end
 
     # This has to be done after #initialize.
