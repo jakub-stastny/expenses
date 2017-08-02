@@ -28,6 +28,10 @@ module Expenses
       self.filter_type(:withdrawal)
     end
 
+    def balances
+      self.filter_type(:balance)
+    end
+
     def income_items
       self.filter_type(:income)
     end

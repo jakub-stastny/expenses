@@ -17,6 +17,13 @@ The add command:
   was worth the price and didn't enjoy.
 - Shall the total be total without tip? I think it makes more sense, esp. with coins.
 
+Budgets:
+- Weekly day-to-day budget. Weekly, rather than daily, to account for shopping cycles.
+- Pleasures: from alcohol to flights to Colombia.
+- Values of long-term value: bike, razor etc.
+
+Come up with a savings scheme.
+
 - Finish the review command based on metadata.last_review.{note,date}.
 - bin/expense on its own should enter the command mode, where 'a/+' (or e/i/w) is add,
   b is balance, l is last etc.

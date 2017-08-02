@@ -87,7 +87,8 @@ module Expenses
             # 27 is Escape, 4 is Ctrl+d.
             tag_commander.command(['q', 27, 4], "quit") do |tag_commander_window|
               # TODO: clean the buffer.
-              raise QuitError.new
+              # raise QuitError.new
+              exit # Don't report balance.
             end
 
             tag_commander.command([13], "set") do |tag_commander_window|
@@ -431,13 +432,13 @@ module Expenses
 
       def report_end_balance(expenses)
         expense = expenses.last
-        balance = Utils.balance_for(@collection, expense)
+        balance = Utils.balance_for(@collection, expense.payment_method, expense.currency)
 
         payment_method_label = expense.payment_method == 'cash' ? expense.currency : expense.payment_method
 
         if balance
           # TODO: Colours based on how much it is (red if less than 500 etc).
-          puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{format_cents_to_money(balance)}</yellow.bold>.".colourise
+          puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{Utils.format_cents_to_money(balance)}</yellow.bold>.".colourise
         else
           puts "<yellow>~</yellow> Unknown running total for <red>#{payment_method_label}</red>.".colourise
         end
@@ -452,22 +453,12 @@ module Expenses
         when true, false
           [:red, value.to_s]
         when Integer
-          [:red, self.format_cents_to_money(value)]
+          [:red, Utils.format_cents_to_money(value)]
         when String
           [:green, "\"#{value}\""]
         else
           raise value.inspect
         end
-      end
-
-      def format_cents_to_money(cents)
-        groups = cents.to_s.each_char.group_by.with_index do |char, index|
-          index < (cents.to_s.length - 2)
-        end
-
-        x = (groups[true] || ['0']).join
-        y = groups[false].join unless groups[false].join.match(/^0{1,2}$/)
-        [x, y].compact.join('.')
       end
     end
   end
