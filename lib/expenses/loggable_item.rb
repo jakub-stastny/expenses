@@ -58,7 +58,7 @@ module Expenses
     end
 
     def data
-      keys = self.method(:initialize).parameters[0..-2].map(&:last)
+      keys = self.method(:initialize).parameters.map(&:last)
       keys.reduce(Hash.new) do |result, key|
         result.merge(key => self.send(key))
       end

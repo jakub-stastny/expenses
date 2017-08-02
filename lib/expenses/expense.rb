@@ -16,11 +16,10 @@ module Expenses
   #
   # TODO: What about transfer fees? Should we log them as well.
   class Income < LoggableItem
-    def initialize(date:, total:, currency:, account:)
-      @date     = validate_date(date)
-      @total    = validate_amount_in_cents(total)
-      @currency = validate_currency(currency)
-      @account  = account
+    def initialize(date:, total:, account:)
+      @date    = validate_date(date)
+      @total   = validate_amount_in_cents(total)
+      @account = account
     end
 
     # This has to be done after #initialize.

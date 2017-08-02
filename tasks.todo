@@ -1,16 +1,12 @@
 The add command:
-- Allow adding income, rides and withdrawals.
+- Allow adding income and withdrawals.
   - Later add these into the add command and switch between them by 't' (type).
     - That would need moving asking for desc & total into the main program and
       also unloading the commands and replacing them.
 - Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
-- Track balance directly for accounts, not only for cash (have an equivalent
-  of the withdrawal object, maybe review that can be done manually (expense balance
-  review or so) ideally every Sunday).
-- Add support for recurrent payments (#recurrent?).
 - Finish the tag editor.
   - One tag? required? One is easier to manage in the CLI app.
-    # ['indulgence', 'essential', 'travelling', 'long_term', 'gift']
+  - Tags: add #recurrent, reduce their number and add #indulgence, #long_term, #gift, maybe #travelling.
 - Quit input of e/t/n commands.
 - Find <bright_black>.
 - Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and
