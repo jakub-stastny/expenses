@@ -259,7 +259,8 @@ module Expenses
               end
             end
 
-            longest_item = items.map(&:first).max_by(&:length)
+            # longest_item = items.map(&:first).max_by(&:length)
+            longest_item = items.map(&:first).max_by { |item| item.gsub(/<[^>]+>/, '').length }
             current_longest_item_length = longest_item.gsub(/<[^>]+>/, '').length
 
             if (@longest_item_length || 0) < current_longest_item_length
@@ -268,7 +269,6 @@ module Expenses
 
             expense_data = items.map do |(data, help)|
               data_length = data.gsub(/<[^>]+>/, '').length
-              # TODO: Log Snickers 4.40 and fix the next line.
               spaces = ' ' * (@longest_item_length - data_length)
               "  #{data}#{spaces} # #{help}"
             end
