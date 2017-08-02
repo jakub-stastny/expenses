@@ -9,6 +9,7 @@ module Expenses
       Pathname.new("~/Dropbox/Data/Data/Expenses").expand_path
     end
 
+    attr_reader :path
     def initialize(basename)
       @path = self.class.data_file_dir.join(basename)
       @activity_filters = Hash.new
@@ -34,6 +35,10 @@ module Expenses
 
     def income_items
       self.filter_type(:income)
+    end
+
+    def rides
+      self.filter_type(:ride)
     end
 
     protected

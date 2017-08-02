@@ -1,5 +1,7 @@
 require 'refined-refinements/colours'
 
+# 1. Review and correct balances, either by adding missing items or calling BalanceCommand.
+# 2. Review long-term and expensive purchases. (these might have dates, so we review them after they happen).
 module Expenses
   module Commands
     class ReviewCommand < RR::Command

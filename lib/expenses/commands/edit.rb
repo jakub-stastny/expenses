@@ -4,7 +4,7 @@ module Expenses
       using RR::ColourExts
 
       self.help = <<-EOF
-        #{self.main_command} <red>edit</red> <bright_black># Edit the expense file in $EDITOR.</bright_black>
+        #{self.main_command} <green>edit</green> <bright_black># Edit the expense file in $EDITOR.</bright_black>
       EOF
 
       def initialize(collection, args)
@@ -12,7 +12,7 @@ module Expenses
       end
 
       def run
-        system(ENV['EDITOR'] || 'vim', @collection.data_file_path)
+        system(ENV['EDITOR'] || 'vim', @collection.path.to_s)
       end
     end
   end

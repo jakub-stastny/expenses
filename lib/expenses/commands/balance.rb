@@ -6,7 +6,9 @@ module Expenses
       using RR::ColourExts
 
       self.help = <<-EOF
-        #{self.main_command} <red>balance</red> <bright_black># Show balances of your accounts and available cash funds.</bright_black>
+        #{self.main_command} <green>balance</green> <bright_black># Show balances of your accounts and available cash funds.</bright_black>
+        #{self.main_command} <red>balance</red> [account_name] [value] <bright_black># Set the current balance of given account.</bright_black>
+        #{self.main_command} <red>balance</red> [currency] [value] <bright_black># Set the current balance of cash funds.</bright_black>
       EOF
 
       def initialize(collection, args)
@@ -14,6 +16,31 @@ module Expenses
       end
 
       def run
+        case @args.length
+        when 0 then self.report_balances
+        when 2 then self.set_balance(*@args)
+        else
+          raise ShowHelpError.new
+        end
+      end
+
+      def set_balance(account_name_or_currency, balance)
+        cents = Utils.money_to_cents(balance)
+
+        if @collection.balances.map(&:account).include?(account_name_or_currency)
+          # What if it doesn't match with the value from the system? Should we
+          # create an expense (negative or positive) behind the scene to indicate
+          # the real state of things?
+          puts "TODO"
+        elsif @collection.withdrawals.map(&:currency).include?(account_name_or_currency)
+          # Can we do this? Before it'd be done in withdrawals.
+          puts "TODO"
+        else
+          raise 'x'
+        end
+      end
+
+      def report_balances
         accounts = @collection.balances.map(&:account)
         cash_currencies = @collection.withdrawals.map(&:currency)
 
