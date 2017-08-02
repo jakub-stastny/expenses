@@ -1,5 +1,6 @@
 require 'refined-refinements/curses/app'
 require 'refined-refinements/cli/prompt'
+require 'expenses/commands/lib/common_prompts'
 require 'expenses/utils'
 
 # Improve 'e'. Allow esc to quit.
@@ -10,6 +11,7 @@ module Expenses
   module Commands
     class AddCommand < RR::Command
       using RR::ColourExts
+      include CommonPrompts
 
       self.help = <<-EOF
         #{self.main_command} <red>+</red> <bright_black># Log a new expense.</bright_black>
@@ -175,7 +177,7 @@ module Expenses
 
             y = commander_window.cury + ((Curses.lines - commander_window.cury) / 2) # TODO: This works, except the current position is (I think) wrong.
             commander_window.setpos(y, 0)
-            prompt_money(:tip, 'Tip')
+            prompt_money(:tip, 'Tip', allow_empty: true)
             expense.tip = @prompt.data[:tip]
           end
 
@@ -298,19 +300,6 @@ module Expenses
         end
       end
 
-      def prompt_money(key, prompt)
-        @prompt.prompt(key, prompt) do
-          validate_raw_value(/^\d+(\.\d{2})?$/)
-
-          clean_value do |raw_value|
-            convert_money_to_cents(raw_value)
-          end
-
-          validate_clean_value do |clean_value|
-            clean_value.integer?
-          end
-        end
-      end
 
       # def prompt_tag(expenses)
       #   tags = expenses.map(&:tag).uniq.compact.sort # TODO: Sort by number of occurences.
