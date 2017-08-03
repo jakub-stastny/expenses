@@ -64,7 +64,7 @@ module Expenses
       end
 
       def prompt_where
-        expenses = @collection.expenses
+        expenses = @collection.all_expenses
         locations = expenses.map(&:location).uniq.compact
         @prompt.prompt(:where, 'Where', options: locations, default: expenses.last.location) do
           clean_value do |raw_value|

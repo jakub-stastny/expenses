@@ -1,8 +1,6 @@
 Version 1.0:
 
 Expense:
-vale_la_pena: 0, 1, 2 | nil
-VALE_LA_PENA_NAMES = ['yes', 'no', 'good, but too expensive']
 - Shall the total be total without tip? I think it makes more sense, esp. with coins.
 - Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
   - Numbers could be expressions like 2 * 3.40. In that case ExpenseWithUnitPrice would be used.

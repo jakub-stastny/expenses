@@ -5,6 +5,10 @@ module Expenses
   class LoggableItem
     def self.inherited(inherited_class)
       self.types[inherited_class.type_name] = inherited_class
+
+      unless self.private_attributes.empty?
+        inherited_class.private_attributes = self.private_attributes.dup
+      end
     end
 
     def self.type_name
@@ -142,6 +146,14 @@ module Expenses
       end
 
       tag
+    end
+
+    def validate_integer(integer)
+      unless integer.respond_to?(:even?)
+        raise ArgumentError.new("Expected integer, not #{integer.inspect}.")
+      end
+
+      integer
     end
   end
 end

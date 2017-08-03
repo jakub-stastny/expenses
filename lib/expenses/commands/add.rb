@@ -127,7 +127,7 @@ module Expenses
           end
 
           {
-            currency: 'c', payment_method: 'p'
+            currency: 'c', payment_method: 'p', vale_la_pena: 'v'
           }.each do |attribute, command|
             commander.command(command) do |commander_window|
               cycle_between_values(expenses, expense, attribute)
@@ -215,19 +215,25 @@ module Expenses
             payment_method: "Press <red.bold>p</red.bold>/<red.bold>P</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
             tip: "Press <red.bold>g</red.bold> to edit.",
             note: "Press <red.bold>n</red.bold> to edit.",
-            tag: "Press <red.bold>#</red.bold> to set."
+            tag: "Press <red.bold>#</red.bold> to set.",
+            vale_la_pena: "Press <red.bold>v</red.bold>/<red.bold>V</red.bold> to cycle between values."
           }
 
-          hidden_attributes = [:fee] # We don't know the fee yet, that's what review is for.
+          hidden_attributes = Expense.private_attributes + [:fee] # We don't know the fee yet, that's what review is for.
 
           attributes_with_guessed_defaults = [:date, :location, :payment_method, :tag]
 
           commander.loop do |commander, commander_window|
             items = expense.public_data.reduce(Array.new) do |buffer, (key, value)|
-              if Expense.private_attributes.include?(key) || hidden_attributes.include?(key)
+              if hidden_attributes.include?(key)
                 buffer
               else
                 key_tag = attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
+
+                if key == :vale_la_pena && value
+                  value = Expense::VALE_LA_PENA_LABELS[value]
+                end
+
                 value_tag, value_text = highlight(value)
                 buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", help[key]]
               end

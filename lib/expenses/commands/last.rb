@@ -15,7 +15,7 @@ module Expenses
       end
 
       def run
-        expenses = @collection.expenses
+        expenses = @collection.all_expenses
         unless expenses.empty?
           last_three_logged_days = expenses.map(&:date).uniq[-3..-1]
           last_three_logged_days.each.with_index do |date, index|

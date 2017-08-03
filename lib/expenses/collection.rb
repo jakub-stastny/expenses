@@ -21,8 +21,12 @@ module Expenses
       end
     end
 
-    def expenses
+    def all_expenses
       self.filter_type(BaseExpense)
+    end
+
+    def expenses
+      self.filter_type(Expense)
     end
 
     def withdrawals

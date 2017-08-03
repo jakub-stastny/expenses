@@ -103,10 +103,13 @@ module Expenses
 
   # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
   class Expense < BaseExpense
-    def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, fee: nil, total_usd: nil, total_eur: nil)
+    VALE_LA_PENA_LABELS = ['yes', 'no', 'good, but too expensive']
+
+    def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, vale_la_pena: nil, fee: nil, total_usd: nil, total_eur: nil)
       @desc = validate_desc(desc)
       @tip  = validate_amount_in_cents(tip)
       @tag  = validate_tag(tag) if tag && ! tag.empty?
+      @vale_la_pena = validate_integer(vale_la_pena) if vale_la_pena
       @fee  = validate_amount_in_cents(fee) if fee
 
       super(date: date, total: total, location: location,

@@ -42,7 +42,7 @@ module Expenses
     end
 
     def prompt_currency(expenses)
-      expenses = @collection.expenses
+      expenses = @collection.all_expenses
       currencies = expenses.map(&:currency).uniq
       @prompt.prompt(:currency, 'Currency code', options: currencies, default: expenses.last.currency) do
         clean_value do |raw_value|
@@ -56,7 +56,7 @@ module Expenses
     end
 
     def prompt_location
-      expenses = @collection.expenses
+      expenses = @collection.all_expenses
       locations = expenses.map(&:location).uniq.compact
       @prompt.prompt(:location, 'Location', options: locations, default: expenses.last.location) do
         clean_value do |raw_value|
