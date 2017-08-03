@@ -75,10 +75,7 @@ module Expenses
   end
 
   # Whether it's meant to be returned (flat deposit) or not (tailor).
-  # TODO: This should inherit from BaseExpense and Refund also, or alternatively
-  # come up with helper for total_usd/total_eur calculations.
   class Deposit < LoggableItem
-    # TODO: fee?
     def initialize(date:, desc:, total:, currency:, payment_method:, expiration_date: , status: 'open', note: nil)
       @date     = validate_date(date)
       @desc     = validate_desc(desc)
