@@ -52,5 +52,13 @@ module Expenses
         "#{raw_value}00".to_i
       end
     end
+
+    def self.most_common_attribute_value(expenses, attribute)
+      expenses.map(&attribute).uniq.max_by do |value|
+        expenses.count do |expense|
+          expense.send(attribute) == value
+        end
+      end
+    end
   end
 end

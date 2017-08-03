@@ -34,13 +34,13 @@ module Expenses
           prompt_desc
           prompt_money(:total, 'Total')
 
-          most_common_tag  = self.most_common_attribute_value(expenses, :tag)
+          most_common_tag  = Utils.most_common_attribute_value(expenses, :tag)
 
           # Here we could guess that if the total is over n, we'd default
           # to the last card payment method, but the problem is that since
           # we don't know the currency yet, we cannot make an assumption
           # whether the purchase was expensive or not.
-          most_common_payment_method = self.most_common_attribute_value(expenses, :payment_method)
+          most_common_payment_method = Utils.most_common_attribute_value(expenses, :payment_method)
 
           data = @prompt.data.merge(
             date: Date.today,
@@ -127,7 +127,7 @@ module Expenses
           end
 
           {
-            currency: 'c', payment_method: 'p', vale_la_pena: 'v'
+            currency: 'c', payment_method: 'p'
           }.each do |attribute, command|
             commander.command(command) do |commander_window|
               cycle_between_values(expenses, expense, attribute)
@@ -136,6 +136,18 @@ module Expenses
             commander.command(command.upcase) do |commander_window|
               cycle_backwards_between_values(expenses, expense, attribute)
             end
+          end
+
+          commander.command('v') do |commander_window|
+            values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
+            @cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
+            _cycle_between_values(expense, :vale_la_pena)
+          end
+
+          commander.command('V') do |commander_window|
+            values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
+            @cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
+            _cycle_backwards_between_values(expense, :vale_la_pena)
           end
 
           commander.command('l') do |commander_window|
@@ -222,6 +234,7 @@ module Expenses
           hidden_attributes = Expense.private_attributes + [:fee] # We don't know the fee yet, that's what review is for.
 
           attributes_with_guessed_defaults = [:date, :location, :payment_method, :tag]
+          empty_attributes = [:vale_la_pena, :note, :tip]
 
           commander.loop do |commander, commander_window|
             items = expense.public_data.reduce(Array.new) do |buffer, (key, value)|
@@ -339,7 +352,10 @@ module Expenses
 
       def cycle_between_values(expenses, expense, attribute)
         self.cache_values_for(expenses, attribute)
+        _cycle_between_values(expense, attribute)
+      end
 
+      def _cycle_between_values(expense, attribute)
         self.init_last_index_cache(attribute, expense.send(attribute))
         @cache[:"last_#{attribute}_index"] += 1
 
@@ -352,7 +368,10 @@ module Expenses
 
       def cycle_backwards_between_values(expenses, expense, attribute)
         self.cache_values_for(expenses, attribute)
+        _cycle_backwards_between_values(expense, attribute)
+      end
 
+      def _cycle_backwards_between_values(expense, attribute)
         self.init_last_index_cache(attribute, expense.send(attribute))
         @cache[:"last_#{attribute}_index"] -= 1
 
@@ -374,14 +393,6 @@ module Expenses
         end
       end
 
-      def most_common_attribute_value(expenses, attribute)
-        expenses.map(&attribute).uniq.max_by do |value|
-          expenses.count do |expense|
-            expense.send(attribute) == value
-          end
-        end
-      end
-
       def set_currency_based_on_location(expenses, expense)
         location = expense.location
 
@@ -395,7 +406,7 @@ module Expenses
       end
 
       def update_payment_method_if_online(expenses, expense)
-        most_common_online_payment_method = self.most_common_attribute_value(expenses.select { |expense| expense.location == 'online' }, :payment_method)
+        most_common_online_payment_method = Utils.most_common_attribute_value(expenses.select { |expense| expense.location == 'online' }, :payment_method)
         expense.payment_method = most_common_online_payment_method if most_common_online_payment_method
       end
 
