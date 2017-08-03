@@ -74,7 +74,26 @@ module Expenses
     end
   end
 
-  # class Deposit if I ever need it.
+  # Whether it's meant to be returned (flat deposit) or not (tailor).
+  # TODO: This should inherit from BaseExpense and Refund also, or alternatively
+  # come up with helper for total_usd/total_eur calculations.
+  class Deposit < LoggableItem
+    # TODO: fee?
+    def initialize(date:, desc:, total:, currency:, payment_method:, expiration_date: , status: 'open', note: nil)
+      @date     = validate_date(date)
+      @desc     = validate_desc(desc)
+      @total    = validate_amount_in_cents(total) # Including tip.
+      @currency = validate_currency(currency)
+      @payment_method = payment_method
+      @expiration_date = validate_date(expiration_date)
+      @status   = status
+      @note     = note
+    end
+
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
 
   class BaseExpense < LoggableItem
     self.private_attributes = [:total_usd, :total_eur]

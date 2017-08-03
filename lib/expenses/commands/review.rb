@@ -2,6 +2,7 @@ require 'refined-refinements/colours'
 
 # 1. Review and correct balances, either by adding missing items or calling BalanceCommand.
 # 2. Review long-term and expensive purchases. (these might have dates, so we review them after they happen).
+# 3. Show expired deposits.
 module Expenses
   module Commands
     class ReviewCommand < RR::Command
@@ -16,8 +17,22 @@ module Expenses
         @expenses = collection.expenses
       end
 
+      def report_expired_deposits
+        expired_deposits = @collection.deposits.select do |deposit|
+          deposit.status == 'open' && deposit.expiration_date < Date.today
+        end
+
+        unless expired_deposits.empty?
+          puts "<red>You have expired deposits:</red>".colourise(bold: true)
+        end
+
+        expired_deposits.each do |deposit|
+          puts "- <yellow>#{deposit.desc}</yellow> #{deposit.currency} #{Utils.format_cents_to_money(deposit.total)}".colourise
+        end
+      end
+
       def run
-        abort 'This is not yet implemented.'
+        self.report_expired_deposits
 
         self.expenses_for_review.each do
           puts "Was #{expense.desc} worth €#{expense.total_eur}? (yes/no/not sure): "

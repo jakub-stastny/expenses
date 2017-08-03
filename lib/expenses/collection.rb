@@ -29,6 +29,10 @@ module Expenses
       self.filter_type(Expense)
     end
 
+    def deposits
+      self.filter_type(Deposit)
+    end
+
     def withdrawals
       self.filter_type(Withdrawal)
     end

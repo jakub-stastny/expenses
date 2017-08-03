@@ -100,12 +100,14 @@ module Expenses
       # Return nil if there is no connection.
     end
 
-    def validate_date(date)
-      unless date.is_a?(Date)
+    def validate_date(date_or_date_string)
+      if date_or_date_string.is_a?(Date)
+        date
+      elsif date_or_date_string.match(/^\d{4}-\d{2}-\d{2}$/)
+        Date.parse(date_or_date_string)
+      else
         raise TypeError.new("Date has to be an instance of Date.")
       end
-
-      date
     end
 
     def validate_type(type)
