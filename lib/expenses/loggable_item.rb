@@ -8,7 +8,7 @@ module Expenses
     end
 
     def self.type_name
-      self.name.split('::').last.downcase.to_sym
+      self.name.split('::').last.gsub(/[A-Z]/) { |capital_letter| "_#{capital_letter.downcase}" }[1..-1].to_sym
     end
 
     def self.types

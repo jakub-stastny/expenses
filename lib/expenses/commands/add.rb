@@ -3,10 +3,6 @@ require 'refined-refinements/cli/prompt'
 require 'expenses/commands/lib/common_prompts'
 require 'expenses/utils'
 
-# Improve 'e'. Allow esc to quit.
-#   Maybe split into 3 windows (expense data, middle, status line)?
-#     That conflicts with App.new.run do |app, window|
-# Improve the tag editor.
 module Expenses
   module Commands
     class AddCommand < RR::Command
@@ -27,13 +23,6 @@ module Expenses
         rescue Errno::ENOENT
           expenses = Array.new
         end
-
-        # puts "Hello <dark>world</dark>!".colourise
-        # puts "Hello <underline>world</underline>!".colourise
-        # puts "Hello <negative>world</negative>!".colourise
-        # puts "Hello <red.on_yellow>world</red.on_yellow>!".colourise
-        # puts "<intense_cyan>Hello</intense_cyan> <on_intense_cyan>world</on_intense_cyan>!".colourise
-        # puts "<bright_cyan>Hello</bright_cyan> <on_bright_cyan>world</on_bright_cyan>!".colourise
 
         App.new.run do |app, window|
           @prompt = RR::Prompt.new do |prompt|
@@ -124,11 +113,6 @@ module Expenses
               # tag_commander.destroy
             end
 
-            # indulgence: #eating_out, #crawings, #tea, #drinks
-            # essential: #groceries (although ...), #mhd
-            # travelling: #fuel, #vignette
-            # maintenance: #car
-            # ?: #social
             case expense.tag
             when '#fuel'
               unit_price = prompt_money(:unit_price, 'Unit price')
@@ -140,12 +124,6 @@ module Expenses
 
             # @tag_editor_window.refresh; sleep 3 ####
 
-            # OR ...
-            # Press #, then display all of them with their indices and use:
-            # 1. Pressing # again to cycle through.
-            # 1. tab to complete
-            # 2. and index to get the tag
-            # 3. write a new value
           end
 
           {
@@ -193,12 +171,6 @@ module Expenses
             expense.note = @prompt.data[:note]
           end
 
-          # TODO: Press 'e', then prompt "Which attribute? ", you say "ta<tab>",
-          # it completes it to "tag", press Enter, then write the new value.
-          # This is useful only for values that can have unlimited variations of
-          # values such as tag, tip, total or if it's a new location, then location
-          # as well, otherwise it's more convenient to cycle between the values
-          # by pressing say "c" multiple times (first run: EUR, second: CZK ...).
           commander.command('e') do |commander_window|
             @prompt = self.prompt_proc(app, commander_window)
 
@@ -246,11 +218,13 @@ module Expenses
             tag: "Press <red.bold>#</red.bold> to set."
           }
 
+          hidden_attributes = [:fee] # We don't know the fee yet, that's what review is for.
+
           attributes_with_guessed_defaults = [:date, :location, :payment_method, :tag]
 
           commander.loop do |commander, commander_window|
             items = expense.public_data.reduce(Array.new) do |buffer, (key, value)|
-              if Expense.private_attributes.include?(key)
+              if Expense.private_attributes.include?(key) || hidden_attributes.include?(key)
                 buffer
               else
                 key_tag = attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
@@ -426,7 +400,6 @@ module Expenses
         payment_method_label = expense.payment_method == 'cash' ? expense.currency : expense.payment_method
 
         if balance
-          # TODO: Colours based on how much it is (red if less than 500 etc).
           puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{Utils.format_cents_to_money(balance)}</yellow.bold>.".colourise
         else
           puts "<yellow>~</yellow> Unknown running total for <red>#{payment_method_label}</red>.".colourise

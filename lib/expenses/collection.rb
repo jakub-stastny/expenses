@@ -22,29 +22,29 @@ module Expenses
     end
 
     def expenses
-      self.filter_type(:expense)
+      self.filter_type(BaseExpense)
     end
 
     def withdrawals
-      self.filter_type(:withdrawal)
+      self.filter_type(Withdrawal)
     end
 
     def balances
-      self.filter_type(:balance)
+      self.filter_type(Balance)
     end
 
     def income_items
-      self.filter_type(:income)
+      self.filter_type(Income)
     end
 
     def rides
-      self.filter_type(:ride)
+      self.filter_type(Ride)
     end
 
     protected
     def filter_type(type_name)
       self.items.select do |item|
-        item.type == type_name
+        type_name === item
       end
     end
 

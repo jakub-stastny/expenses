@@ -1,28 +1,14 @@
 require 'expenses/loggable_item'
 
 module Expenses
-  # TODO: Mapping of accounts to payment methods:
-  # FIO EUR -> FIO EUR VISA or something like that.
-  #
-  # We could even just use the bank account, but PayPal
-  # breaks the 1:1 mapping.
-  #
-  # Also sometimes the expense actually is a bank transfer rather than a bank
-  # transaction, though it's similar enough (and rare enough) that keeping it
-  # together would make the payment_methods easier to work with.
-  #
-  # Maybe I can separate it into bank_account x payment method and have there
-  # same contract as between location x currency.
-  #
-  # TODO: What about transfer fees? Should we log them as well.
   class Income < LoggableItem
-    def initialize(date:, total:, account:)
+    def initialize(date:, total:, account:, fee: nil)
       @date    = validate_date(date)
       @total   = validate_amount_in_cents(total)
       @account = account
+      @fee     = validate_amount_in_cents(fee) if fee
     end
 
-    # This has to be done after #initialize.
     self.attributes.each do |attribute|
       attr_accessor attribute
     end
@@ -40,7 +26,6 @@ module Expenses
       @fee      = validate_amount_in_cents(fee) if fee
     end
 
-    # This has to be done after #initialize.
     self.attributes.each do |attribute|
       attr_accessor attribute
     end
@@ -54,12 +39,12 @@ module Expenses
       @note    = note
     end
 
-    # This has to be done after #initialize.
     self.attributes.each do |attribute|
       attr_accessor attribute
     end
   end
 
+  # Don't forget to reset the trip before you go.
   class Ride < LoggableItem
     def initialize(date:, car:, distance:, where:, note: nil)
       @date     = validate_date(date)
@@ -69,41 +54,36 @@ module Expenses
       @note     = note
     end
 
-    # This has to be done after #initialize.
     self.attributes.each do |attribute|
       attr_accessor attribute
     end
   end
 
   # Should refer to an ID (index?).
-  # Can be partial and include transfer fees.
+  # Fee is (money sent) - (money received) for complete refunds.
+  # Refunds can be partial as well though.
   class Refund < LoggableItem
-    def initialize(date:, note: nil)
+    def initialize(date:, note: nil, fee: nil)
       @date = validate_date(date)
       @note = note
+      @fee  = validate_amount_in_cents(fee) if fee
     end
 
-    # This has to be done after #initialize.
     self.attributes.each do |attribute|
       attr_accessor attribute
     end
   end
 
-  class Expense < LoggableItem
+  # class Deposit if I ever need it.
+
+  class BaseExpense < LoggableItem
     self.private_attributes = [:total_usd, :total_eur]
 
-    def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, total_usd: nil, total_eur: nil, **rest)
-      unless rest.empty?
-        raise ArgumentError.new("Unexpected key(s): #{rest.keys.inspect}")
-      end
-
+    def initialize(date:, total:, location:, currency:, payment_method:, note: nil, total_usd: nil, total_eur: nil)
       @date     = validate_date(date)
-      @desc     = validate_desc(desc)
       @total    = validate_amount_in_cents(total) # Including tip.
-      @tip      = validate_amount_in_cents(tip)
       @currency = validate_currency(currency)
       @note     = note
-      @tag      = validate_tag(tag) if tag && ! tag.empty?
       @location = location
       @payment_method = payment_method
 
@@ -116,9 +96,32 @@ module Expenses
       else convert_currency(@total, @currency, 'EUR') end
     end
 
-    # This has to be done after #initialize.
     self.attributes.each do |attribute|
       attr_accessor attribute
+    end
+  end
+
+  # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
+  class Expense < BaseExpense
+    def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, fee: nil, total_usd: nil, total_eur: nil)
+      @desc = validate_desc(desc)
+      @tip  = validate_amount_in_cents(tip)
+      @tag  = validate_tag(tag) if tag && ! tag.empty?
+      @fee  = validate_amount_in_cents(fee) if fee
+
+      super(date: date, total: total, location: location,
+        currency: currency, payment_method: payment_method,
+        note: note, total_usd: total_usd, total_eur: total_eur)
+    end
+
+    self.attributes.each do |attribute|
+      attr_accessor attribute
+    end
+  end
+
+  class UnknownExpense < BaseExpense
+    def desc
+      'Unknown expense.'
     end
   end
 end

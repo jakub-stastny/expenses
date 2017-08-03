@@ -1,17 +1,73 @@
-The add command:
-- Allow adding income and withdrawals.
-  - Later add these into the add command and switch between them by 't' (type).
-    - That would need moving asking for desc & total into the main program and
-      also unloading the commands and replacing them.
+Version 1.0:
+
+Expense:
+vale_la_pena: 0, 1, 2 | nil
+VALE_LA_PENA_NAMES = ['yes', 'no', 'good, but too expensive']
+- Shall the total be total without tip? I think it makes more sense, esp. with coins.
 - Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
+  - Numbers could be expressions like 2 * 3.40. In that case ExpenseWithUnitPrice would be used.
+- One tag? required? One is easier to manage in the CLI app.
+
+Finish WithdrawalCommand.
+
+BalanceCommand:
+- Add setting balances that creates UnknownExpense behind the scene.
+- Support multi-currency reports (for one day).
+
+ReviewCommand:
+- Add fees for withdrawals and income items (fee + divergence from the official exchange rate).
+- Finish.
+
+AddCommand:
+# Improve 'e'. Allow esc to quit.
+#   Maybe split into 3 windows (expense data, middle, status line)?
+#     That conflicts with App.new.run do |app, window|
+# Improve the tag editor.
+
+# TODO: Press 'e', then prompt "Which attribute? ", you say "ta<tab>",
+# it completes it to "tag", press Enter, then write the new value.
+# This is useful only for values that can have unlimited variations of
+# values such as tag, tip, total or if it's a new location, then location
+# as well, otherwise it's more convenient to cycle between the values
+# by pressing say "c" multiple times (first run: EUR, second: CZK ...).
+
+# indulgence: #eating_out, #crawings, #tea, #drinks
+# essential: #groceries (although ...), #mhd
+# travelling: #fuel, #vignette
+# maintenance: #car
+# ?: #social
+
+# OR ...
+# Press #, then display all of them with their indices and use:
+# 1. Pressing # again to cycle through.
+# 1. tab to complete
+# 2. and index to get the tag
+# 3. write a new value
+- Support custom_data or ExpenseWithUnitPrice and the like.
 - Finish the tag editor.
-  - One tag? required? One is easier to manage in the CLI app.
-  - Tags: add #recurrent, reduce their number and add #indulgence, #long_term, #gift, maybe #travelling.
 - Quit input of e/t/n commands.
 - Find <bright_black>.
-- Add an optional enjoyment level: enjoyed (but not worth the price), enjoyed and
-  was worth the price and didn't enjoy.
-- Shall the total be total without tip? I think it makes more sense, esp. with coins.
+
+My expenses:
+- Tags: add #recurrent, reduce their number and add #indulgence, #long_term, #gift, maybe #travelling.
+
+# TODO: Mapping of accounts to payment methods:
+# FIO EUR -> FIO EUR VISA or something like that.
+#
+# We could even just use the bank account, but PayPal
+# breaks the 1:1 mapping.
+#
+# Also sometimes the expense actually is a bank transfer rather than a bank
+# transaction, though it's similar enough (and rare enough) that keeping it
+# together would make the payment_methods easier to work with.
+#
+# Maybe I can separate it into bank_account x payment method and have there
+# same contract as between location x currency.
+
+Release:
+- Update the README.
+- Tag with 1.0 & push the gem.
+________________________________________________________________________________
 
 Budgets:
 - Weekly day-to-day budget. Weekly, rather than daily, to account for shopping cycles.
@@ -19,13 +75,15 @@ Budgets:
 - Pleasures: from alcohol to flights to Colombia.
 - Values of long-term value: bike, razor etc.
 
+Later:
+- Add other LoggableItems into the add command and switch between them by 't' (type).
+  - That would need moving asking for desc & total into the main program and
+    also unloading the commands and replacing them.
+
 Come up with a savings scheme.
 
 - Finish the review command based on metadata.last_review.{note,date}.
 - bin/expense on its own should enter the command mode, where 'a/+' (or e/i/w) is add,
   b is balance, l is last etc.
 
-- Tag with 1.0.
-
 - Add quaterly and yearly reports.
-- Numbers could be expressions like 2 * 3.40.

@@ -12,12 +12,7 @@ require 'refined-refinements/cli/commander'
 #
 # <green.bold>Options</green.bold>
 #
-# expense <cyan>add</cyan>, <cyan>a</cyan>, <cyan>+</cyan>  <bright_black># Interactively add a new expense.</bright_black>
-# expense <cyan>last</cyan>, <cyan>l</cyan>  <bright_black># Last day spendings.</bright_black>
-# expense <cyan>report</cyan>, <cyan>r</cyan>  <bright_black># Report on your spendings.</bright_black>
-# expense <cyan>review</cyan>     <bright_black># Review long-term purchases.</bright_black>
-# expense <cyan>console</cyan>, <cyan>c</cyan> <bright_black># Launch Ruby console with expense data loaded.</bright_black>
-# expense <cyan>edit</cyan>, <cyan>e</cyan>    <bright_black># Edit expense data in $EDITOR.</bright_black>
+# <%= HELP %>
 #
 # <green.bold>Environment variables</green.bold>
 #
