@@ -119,8 +119,6 @@ module Expenses
 
   # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
   class Expense < BaseExpense
-    VALE_LA_PENA_LABELS = ['yes', 'no', 'good, but too expensive']
-
     def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, vale_la_pena: nil, fee: nil, items: Array.new, total_usd: nil, total_eur: nil)
       @desc = validate_desc(desc)
       @tip  = validate_amount_in_cents(tip)
