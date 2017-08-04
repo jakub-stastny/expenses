@@ -1,8 +1,11 @@
+require 'refined-refinements/colours'
 require 'expenses/commands/commanders/screen'
 
 module Expenses
   class ExpenseScreen < InspectScreen
-    HELP = {
+    using RR::ColourExts
+
+    HELP ||= {
       date: "Set to previous/next day by pressing <red.bold>d</red.bold>/<red.bold>D</red.bold>.",
       desc: "Press <red.bold>e</red.bold> to edit.",
       total: "Press <red.bold>e</red.bold> to edit.",
@@ -16,16 +19,16 @@ module Expenses
     }
 
     # We don't know the fee yet, that's what review is for.
-    HIDDEN_ATTRIBUTES = Expense.private_attributes + [:fee, :items]
+    HIDDEN_ATTRIBUTES ||= Expense.private_attributes + [:fee, :items]
 
-    ATTRIBUTES_WITH_GUESSED_DEFAULTS = [:date, :location, :payment_method, :tag]
-    EMPTY_ATTRIBUTES = [:vale_la_pena, :note, :tip]
+    ATTRIBUTES_WITH_GUESSED_DEFAULTS ||= [:date, :location, :payment_method, :tag]
+    EMPTY_ATTRIBUTES ||= [:vale_la_pena, :note, :tip]
 
     def initialize(expense)
       @expense = expense
     end
 
-    def run(commander_window)
+    def run(commander, commander_window)
       items = @expense.public_data.reduce(Array.new) do |buffer, (key, value)|
         if HIDDEN_ATTRIBUTES.include?(key)
           buffer
@@ -37,20 +40,19 @@ module Expenses
           end
 
           value_tag, value_text = highlight(key, value)
-          buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", help[key]]
+          buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", HELP[key]]
         end
       end
 
       # longest_item = items.map(&:first).max_by(&:length)
-      longest_item = items.map(&:first).max_by { |item| item.gsub(/<[^>]+>/, '').length }
-      current_longest_item_length = longest_item.gsub(/<[^>]+>/, '').length
+      longest_item = items.map { |items| RR::TemplateString.new(items.first) }.max_by(&:length)
 
-      if (@longest_item_length || 0) < current_longest_item_length
-        @longest_item_length = current_longest_item_length + 7 # Give it some give, so it doesn't get updated too much.
+      if (@longest_item_length || 0) < longest_item.length
+        @longest_item_length = longest_item.length + 7 # Give it some give, so it doesn't get updated too much.
       end
 
       expense_data = items.map do |(data, help)|
-        data_length = data.gsub(/<[^>]+>/, '').length
+        data_length = RR::TemplateString.new(data).length
         spaces = ' ' * (@longest_item_length - data_length)
         "  #{data}#{spaces} # #{help}"
       end

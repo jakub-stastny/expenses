@@ -16,6 +16,8 @@ module Expenses
         end
       when String
         [:green, "\"#{value}\""]
+      when Array
+        [:yellow, value.inspect]
       else
         raise value.inspect
       end
