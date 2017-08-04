@@ -4,26 +4,37 @@ module Expenses
   class InspectScreen
     using RR::ColourExts
 
-    HELP ||= {}
-    HIDDEN_ATTRIBUTES ||= []
-    ATTRIBUTES_WITH_GUESSED_DEFAULTS ||= []
-    EMPTY_ATTRIBUTES ||= []
+    def help
+      Hash.new
+    end
+
+    def hidden_attributes
+      Array.new
+    end
+
+    def attributes_with_guessed_defaults
+      Array.new
+    end
+
+    def empty_attributes
+      Array.new
+    end
 
     def run(commander, commander_window, label, &block)
       data = block.call
 
       items = data.reduce(Array.new) do |buffer, (key, value)|
-        if self.class::HIDDEN_ATTRIBUTES.include?(key)
+        if self.hidden_attributes.include?(key)
           buffer
         else
-          key_tag = self.class::ATTRIBUTES_WITH_GUESSED_DEFAULTS.include?(key) ? 'yellow.bold' : 'yellow'
+          key_tag = self.attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
 
           if key == :vale_la_pena && value
             value = Expense::VALE_LA_PENA_LABELS[value]
           end
 
           value_tag, value_text = highlight(key, value)
-          buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", self.class::HELP[key]]
+          buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", self.help[key]]
         end
       end
 

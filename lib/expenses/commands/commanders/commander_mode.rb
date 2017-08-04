@@ -1,8 +1,8 @@
 module Expenses
   class CommanderMode
-    def run
-      @commander.command('e') do |commander_window|
-        @prompt = self.prompt_proc(app, commander_window)
+    def run(commander, app, prompt)
+      commander.command('e') do |commander_window|
+        prompt = self.prompt_proc(app, commander_window)
 
         editable_attributes = {
           desc:           -> { prompt_desc },

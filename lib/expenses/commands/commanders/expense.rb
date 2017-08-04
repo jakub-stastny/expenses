@@ -6,22 +6,27 @@ require 'expenses/commands/commanders/expense_screen'
 module Expenses
   class ExpenseCommander < CommanderMode
     def initialize(app)
-      @app = app
-      @commander = app.commander
+      @app, @prompt = app, RR::Prompt.new do |prompt|
+        app.readline(prompt)
+      end
     end
 
     def run(expenses, expense)
-      @commander.command('d') do |commander_window|
+      commander = @app.commander
+
+      super(commander, @app, @prompt)
+
+      commander.command('d') do |commander_window|
         expense.date -= 1
       end
 
-      @commander.command('D') do |commander_window|
+      commander.command('D') do |commander_window|
         unless expense.date == Date.today
           expense.date += 1
         end
       end
 
-      @commander.command('#') do |commander_window|
+      commander.command('#') do |commander_window|
         TagCommander.new(app.commander).run(expense)
 
         # case expense.tag
@@ -36,40 +41,40 @@ module Expenses
       {
         currency: 'c', payment_method: 'p'
       }.each do |attribute, command|
-        @commander.command(command) do |commander_window|
+        commander.command(command) do |commander_window|
           cycle_between_values(expenses, expense, attribute)
         end
 
-        @commander.command(command.upcase) do |commander_window|
+        commander.command(command.upcase) do |commander_window|
           cycle_backwards_between_values(expenses, expense, attribute)
         end
       end
 
-      @commander.command('v') do |commander_window|
+      commander.command('v') do |commander_window|
         values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
         @cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
         _cycle_between_values(expense, :vale_la_pena)
       end
 
-      @commander.command('V') do |commander_window|
+      commander.command('V') do |commander_window|
         values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
         @cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
         _cycle_backwards_between_values(expense, :vale_la_pena)
       end
 
-      @commander.command('l') do |commander_window|
+      commander.command('l') do |commander_window|
         cycle_between_values(expenses, expense, :location)
         set_currency_based_on_location(expenses, expense)
         update_payment_method_if_online(expenses, expense)
       end
 
-      @commander.command('L') do |commander_window|
+      commander.command('L') do |commander_window|
         cycle_backwards_between_values(expenses, expense, :location)
         set_currency_based_on_location(expenses, expense)
         update_payment_method_if_online(expenses, expense)
       end
 
-      @commander.command('g') do |commander_window|
+      commander.command('g') do |commander_window|
         @prompt = self.prompt_proc(app, commander_window)
 
         y = commander_window.cury + ((Curses.lines - commander_window.cury) / 2) # TODO: This works, except the current position is (I think) wrong.
@@ -78,7 +83,7 @@ module Expenses
         expense.tip = @prompt.data[:tip]
       end
 
-      @commander.command('n') do |commander_window|
+      commander.command('n') do |commander_window|
         @prompt = self.prompt_proc(app, commander_window)
 
         commander_window.setpos(Curses.lines, 0)
@@ -90,11 +95,11 @@ module Expenses
         expense.note = @prompt.data[:note]
       end
 
-      @commander.command('i') do |commander_window|
-        ItemCommander.new(app.commander).run
+      commander.command('i') do |commander_window|
+        ItemCommander.new(@app).run
       end
 
-      @commander.command('s', 'save') do |commander_window|
+      commander.command('s', 'save') do |commander_window|
         @collection << expense
         @collection.save
         raise QuitError.new # Quit the commander.
@@ -103,11 +108,11 @@ module Expenses
         puts "\nExpense #{@collection.items.last.serialise.inspect} has been saved."
       end
 
-      @commander.command('q', 'quit without saving') do |commander_window|
+      commander.command('q', 'quit without saving') do |commander_window|
         @app.destroy
       end
 
-      @commander.loop do |commander, commander_window|
+      commander.loop do |commander, commander_window|
         ExpenseScreen.new(expense).run(commander, commander_window)
       end
     end
