@@ -3,6 +3,7 @@ require 'refined-refinements/cli/prompt'
 require 'expenses/commands/lib/common_prompts'
 require 'expenses/commands/commanders/item'
 require 'expenses/commands/commanders/tag'
+require 'expenses/commands/commanders/expense_screen'
 require 'expenses/utils'
 
 module Expenses
@@ -179,60 +180,8 @@ module Expenses
             app.destroy
           end
 
-          help = {
-            date: "Set to previous/next day by pressing <red.bold>d</red.bold>/<red.bold>D</red.bold>.",
-            desc: "Press <red.bold>e</red.bold> to edit.",
-            total: "Press <red.bold>e</red.bold> to edit.",
-            location: "Press <red.bold>l</red.bold>/<red.bold>L</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
-            currency: "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values or set a new one by pressing <red.bold>e</red.bold>.",
-            payment_method: "Press <red.bold>p</red.bold>/<red.bold>P</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
-            tip: "Press <red.bold>g</red.bold> to edit.",
-            note: "Press <red.bold>n</red.bold> to edit.",
-            tag: "Press <red.bold>#</red.bold> to set.",
-            vale_la_pena: "Press <red.bold>v</red.bold>/<red.bold>V</red.bold> to cycle between values."
-          }
-
-          hidden_attributes = Expense.private_attributes + [:fee, :items] # We don't know the fee yet, that's what review is for.
-
-          attributes_with_guessed_defaults = [:date, :location, :payment_method, :tag]
-          empty_attributes = [:vale_la_pena, :note, :tip]
-
           commander.loop do |commander, commander_window|
-            items = expense.public_data.reduce(Array.new) do |buffer, (key, value)|
-              if hidden_attributes.include?(key)
-                buffer
-              else
-                key_tag = attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
-
-                if key == :vale_la_pena && value
-                  value = Expense::VALE_LA_PENA_LABELS[value]
-                end
-
-                value_tag, value_text = highlight(key, value)
-                buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", help[key]]
-              end
-            end
-
-            # longest_item = items.map(&:first).max_by(&:length)
-            longest_item = items.map(&:first).max_by { |item| item.gsub(/<[^>]+>/, '').length }
-            current_longest_item_length = longest_item.gsub(/<[^>]+>/, '').length
-
-            if (@longest_item_length || 0) < current_longest_item_length
-              @longest_item_length = current_longest_item_length + 7 # Give it some give, so it doesn't get updated too much.
-            end
-
-            expense_data = items.map do |(data, help)|
-              data_length = data.gsub(/<[^>]+>/, '').length
-              spaces = ' ' * (@longest_item_length - data_length)
-              "  #{data}#{spaces} # #{help}"
-            end
-
-            commander_window.write("<blue.bold>Expense:</blue.bold>\n#{expense_data.join("\n")}\n")
-
-            original_y = commander_window.cury
-            commander_window.setpos(Curses.lines - 1, 0)
-            commander_window.write(commander.help)
-            commander_window.setpos(original_y, 0)
+            ExpenseScreen.new(expense).run(commander_window)
           end
 
           app.destroy
@@ -381,27 +330,6 @@ module Expenses
           puts "<green.bold>~</green.bold> Running total for <cyan.bold>#{payment_method_label}</cyan.bold> is <yellow.bold>#{Utils.format_cents_to_money(balance)}</yellow.bold>.".colourise
         else
           puts "<yellow>~</yellow> Unknown running total for <red>#{payment_method_label}</red>.".colourise
-        end
-      end
-
-      def highlight(key, value)
-        case value
-        when Date
-          [:magenta, value.strftime('%A %d/%m')]
-        when nil
-          [:cyan, 'nil']
-        when true, false
-          [:red, value.to_s]
-        when Integer
-          if [:total, :tip, :unit_price].include?(key)
-            [:red, Utils.format_cents_to_money(value)]
-          else
-            [:red, value]
-          end
-        when String
-          [:green, "\"#{value}\""]
-        else
-          raise value.inspect
         end
       end
     end

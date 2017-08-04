@@ -1,13 +1,12 @@
 Version 1.0:
 maslanka ta dobra 5.58 / 2
-"é" wouldn't make it to #readline.
+App#readline: support unicode.
 
 Expense:
-- Fully implement Item and adding them in the commander.
+- Fully adding Item's in the commander.
 - Where total_(usd|eur) and fee should be added? Deposit, Income ...
   # TODO: This should inherit from BaseExpense and Refund also, or alternatively
   # come up with helper for total_usd/total_eur calculations.
-- One tag? required? One is easier to manage in the CLI app.
 
 Finish WithdrawalCommand.
 
