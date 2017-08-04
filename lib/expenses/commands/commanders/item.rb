@@ -30,8 +30,8 @@ module Expenses
         end
       end
 
-      @commander.loop do |item_commander, item_commander_window|
-        ItemScreen.new(item).run(item_commander_window)
+      @commander.loop do |commander, commander_window|
+        ItemScreen.new(item).run(commander, commander_window)
       end
     end
   end

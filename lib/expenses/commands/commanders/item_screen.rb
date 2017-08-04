@@ -1,7 +1,7 @@
 require 'expenses/commands/commanders/screen'
 
 module Expenses
-  class ExpenseScreen < InspectScreen
+  class ItemScreen < InspectScreen
     HELP = {
       quantity: "Press <red.bold>x/X</red.bold> to increase/decrease quantity or press <red.bold>e</red.bold> to edit.",
       unit_price: "Press <red.bold>e</red.bold> to edit.",
@@ -23,7 +23,10 @@ module Expenses
       @item = item
     end
 
-    def run(commander_window)
+    def run(commander, commander_window)
+      super(commander, commander_window, 'Item') do
+        @item.data
+      end
     end
   end
 end

@@ -1,4 +1,7 @@
 require 'expenses/commands/commanders/commander_mode'
+require 'expenses/commands/commanders/item'
+require 'expenses/commands/commanders/tag'
+require 'expenses/commands/commanders/expense_screen'
 
 module Expenses
   class ExpenseCommander < CommanderMode
