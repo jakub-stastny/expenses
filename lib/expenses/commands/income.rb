@@ -16,7 +16,7 @@ module Expenses
 
       def run
         prompt_date
-        prompt_money(:total, 'Total')
+        prompt_total
         prompt_account
 
         @collection.items << Income.new(**@prompt.data)

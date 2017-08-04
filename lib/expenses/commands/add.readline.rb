@@ -17,7 +17,7 @@ module Expenses
         prompt_date
         prompt_type
         prompt_desc
-        prompt_money(:total, 'Total')
+        prompt_total
         prompt_tip
         prompt_currency(expenses)
         prompt_note
@@ -71,7 +71,7 @@ module Expenses
         end
       end
 
-      def prompt_money(:total, 'Total')
+      def prompt_total
         @prompt.prompt(:total, 'Total') do
           validate_raw_value(/^\d+(\.\d{2})?$/)
 

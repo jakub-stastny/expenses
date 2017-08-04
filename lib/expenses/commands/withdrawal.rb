@@ -16,7 +16,7 @@ module Expenses
 
       def run
         prompt_date
-        prompt_money(:total, 'Total')
+        prompt_total
         # currency:, account:, location:, balance:
         prompt_location
         prompt_currency

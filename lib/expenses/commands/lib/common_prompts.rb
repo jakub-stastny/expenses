@@ -1,5 +1,9 @@
+require 'refined-refinements/colours'
+
 module Expenses
   module CommonPrompts
+    using RR::ColourExts
+
     def prompt_date
       help = "<green>#{Date.today.iso8601}</green>, anything that <magenta>Data.parse</magenta> parses or <magenta>-1</magenta> for yesterday etc"
       @prompt.prompt(:date, 'Date', help: help) do
@@ -38,6 +42,73 @@ module Expenses
         validate_clean_value do |clean_value|
           clean_value.integer? || clean_value.nil?
         end
+      end
+    end
+
+    # "10" or "10.30".
+    # "34.50 - 3.20"
+    # "34.50 - 34"
+    # "3.40 * 2" # but not the other way round, otherwise what would be "3 * 2"?
+    # "25 + 2.10"
+
+    # TODO: We're well over the head of the prompt library here.
+    # It'd be best to reimplement in curses, so we get interactive help as we type.
+    def prompt_total
+      value_or_expression_regexp = /
+        ^
+          (?<value_1>\d+(\.\d{2})?)     # First value.
+            (\s*(?<operator>[-+*\/])\s* # Operator.
+          (?<value_2>\d+(?:\.\d{2})?))? # Second value.
+        $
+      /x
+
+      help = <<-EOF.gsub(/^\s*/, '')
+        <yellow>10</yellow>, <yellow>10.25</yellow> or <green>3.40 * 2</green> for specifying quantity, <green>54.20 + 3.10</green> or <green>54.20 - 3.10</green> for adding tip or <green>54.25 / 49.80</green> for fuel
+      EOF
+
+      @prompt.prompt(:total, 'Total', help: help.chomp.colourise) do
+        validate_raw_value(value_or_expression_regexp)
+
+        clean_value do |raw_value|
+          match = value_or_expression_regexp.match(raw_value)
+          if match[:operator]
+            value_1 = convert_money_to_cents(match[:value_1])
+            value_2 = convert_money_to_cents(match[:value_2])
+            case match[:operator]
+            when '*'
+              # 3.40 * 2 (tickets)
+              # 2.10 * 100g (bag of rice)
+              # 2.10 * 100g * 2 (2 bags of rice)
+              # NOTE: Fuel would be dealt by the / operand.
+              if match[:value_2].match(Regexp.quote('.'))
+                raise 'xxx'
+              end
+              operand = match[:value_2].to_i
+              r = {total: value_1 * operand, unit_price: value_1, quantity: operand}
+            when '/'
+              # 6.80 / 2 (tickets).
+              # 57.75 / 48.95
+              if match[:value_2].match(Regexp.quote('.'))
+                r = {total: value_1, unit_price: value_1, quantity: match[:value_2].to_f}
+              else
+                r = {total: value_1, unit: 'litre', unit_price: value_1, quantity: match[:value_2].to_i, tag: '#fuel'}
+              end
+              operand = match[:value_2].match(Regexp.quote('.')) ? match[:value_2].to_f : match[:value_2].to_i
+              r = {total: value_1, unit_price: value_1, quantity: operand}
+            when '+' # 32.90 + 3.10
+              r = {total: value_1 + value_2, tip: [value_1, value_2].min}
+            when '-' # 32.90 - 3.10
+              raise 'x' if value_2 > value_1
+              r = {total: value_1, tip: value_2}
+            end
+          else
+            r = {total: convert_money_to_cents(match[:value_1])}
+          end
+        end
+
+        # validate_clean_value do |clean_value|
+        #   clean_value.values.all? { |value| value.integer? }
+        # end
       end
     end
 

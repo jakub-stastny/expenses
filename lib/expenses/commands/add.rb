@@ -1,6 +1,8 @@
 require 'refined-refinements/curses/app'
 require 'refined-refinements/cli/prompt'
 require 'expenses/commands/lib/common_prompts'
+require 'expenses/commands/commanders/item'
+require 'expenses/commands/commanders/tag'
 require 'expenses/utils'
 
 module Expenses
@@ -32,9 +34,9 @@ module Expenses
           # Required arguments that don't have reasonable defaults,
           # we ask for explicitly.
           prompt_desc
-          prompt_money(:total, 'Total')
+          prompt_total
 
-          most_common_tag  = Utils.most_common_attribute_value(expenses, :tag)
+          most_common_tag = Utils.most_common_attribute_value(expenses, :tag)
 
           # Here we could guess that if the total is over n, we'd default
           # to the last card payment method, but the problem is that since
@@ -42,12 +44,17 @@ module Expenses
           # whether the purchase was expensive or not.
           most_common_payment_method = Utils.most_common_attribute_value(expenses, :payment_method)
 
-          data = @prompt.data.merge(
+          total_data = @prompt.data.delete(:total)
+          data_input = @prompt.data.merge(total: total_data[:total])
+
+          data = data_input.merge(
             date: Date.today,
             currency: expenses.last ? expenses.last.currency : 'EUR',
             location: expenses.last ? expenses.last.location : 'online',
             tag: most_common_tag || '#groceries',
             payment_method: most_common_payment_method || 'cash')
+
+          data.merge!(total_data)
           expense = Expense.new(**data)
 
           # Optional arguments or arguments with reasonable defaults.
@@ -65,65 +72,15 @@ module Expenses
           end
 
           commander.command('#') do |commander_window|
-            tag_commander = app.commander
+            TagCommander.new(app.commander).run(expense)
 
-            tag_commander.command(['h', 259], "select the previous tag") do |tag_commander_window|
-              cycle_backwards_between_values(expenses, expense, :tag)
-            end
-
-            tag_commander.command(['#', 'j', 258], "select the next tag") do |tag_commander_window|
-              cycle_between_values(expenses, expense, :tag)
-            end
-
-            # 27 is Escape, 4 is Ctrl+d.
-            tag_commander.command(['q', 27, 4], "quit") do |tag_commander_window|
-              # TODO: clean the buffer.
-              # raise QuitError.new
-              exit # Don't report balance.
-            end
-
-            tag_commander.command([13], "set") do |tag_commander_window|
-              # TODO: Use Enter to confirm the selection OR the @buffer, make the other ones like q not setting.
-              # TODO: clean the buffer.
-              raise QuitError.new
-            end
-
-            tag_commander.default_command do |tag_commander_window, char|
-              if char.is_a?(String)
-                beginning = "##{char}"
-                values = self.cache_values_for(expenses, :tag)
-                new_tag = app.readline("<cyan.bold>#{values.length}</cyan.bold> #{beginning}")
-                expense.tag = new_tag
-              end
-            end
-
-            tag_commander.loop do |tag_commander, tag_commander_window|
-              values = self.cache_values_for(expenses, :tag)
-
-              values.each.with_index do |tag, index|
-                if expense.tag == tag
-                  tag_commander_window.write("<cyan><bold>#{index + 1}</bold> #{tag}</cyan>\n")
-                else
-                  tag_commander_window.write("<bold>#{index + 1}</bold> #{tag}\n")
-                end
-              end
-
-              tag_commander_window.setpos(Curses.lines - 1, 0)
-              tag_commander_window.write(tag_commander.help)
-              # tag_commander.destroy
-            end
-
-            case expense.tag
-            when '#fuel'
-              unit_price = prompt_money(:unit_price, 'Unit price')
-              litres = prompt_money(:liters, 'Liters')
-              expense.extra_data = {unit_price: unit_price, litres: litres}
-            end
-
-
+            # case expense.tag
+            # when '#fuel'
+            #   expense.unit_price ||= prompt_money(:unit_price, 'Unit price')
+            #   expense.quantity ||= prompt_money(:quantity, 'Litres')
+            # end
 
             # @tag_editor_window.refresh; sleep 3 ####
-
           end
 
           {
@@ -183,12 +140,16 @@ module Expenses
             expense.note = @prompt.data[:note]
           end
 
+          commander.command('i') do |commander_window|
+            ItemCommander.new(app.commander).run
+          end
+
           commander.command('e') do |commander_window|
             @prompt = self.prompt_proc(app, commander_window)
 
             editable_attributes = {
               desc:           -> { prompt_desc },
-              total:          -> { prompt_money(:total, 'Total') },
+              total:          -> { prompt_total },
               location:       -> { @prompt.prompt(:location, 'Location') { clean_value { |raw_value| raw_value.strip } } },
               currency:       -> { @prompt.prompt(:currency, 'Currency') { clean_value { |raw_value| raw_value.strip } } }, # TODO: match /^[A-Z]{3}$/.
               payment_method: -> { @prompt.prompt(:payment_method, 'Payment method') { clean_value { |raw_value| raw_value.strip } } } # TODO: Ask for how much is there -> set expense.balance.
@@ -231,7 +192,7 @@ module Expenses
             vale_la_pena: "Press <red.bold>v</red.bold>/<red.bold>V</red.bold> to cycle between values."
           }
 
-          hidden_attributes = Expense.private_attributes + [:fee] # We don't know the fee yet, that's what review is for.
+          hidden_attributes = Expense.private_attributes + [:fee, :items] # We don't know the fee yet, that's what review is for.
 
           attributes_with_guessed_defaults = [:date, :location, :payment_method, :tag]
           empty_attributes = [:vale_la_pena, :note, :tip]
@@ -247,7 +208,7 @@ module Expenses
                   value = Expense::VALE_LA_PENA_LABELS[value]
                 end
 
-                value_tag, value_text = highlight(value)
+                value_tag, value_text = highlight(key, value)
                 buffer << ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", help[key]]
               end
             end
@@ -423,7 +384,7 @@ module Expenses
         end
       end
 
-      def highlight(value)
+      def highlight(key, value)
         case value
         when Date
           [:magenta, value.strftime('%A %d/%m')]
@@ -432,7 +393,11 @@ module Expenses
         when true, false
           [:red, value.to_s]
         when Integer
-          [:red, Utils.format_cents_to_money(value)]
+          if [:total, :tip, :unit_price].include?(key)
+            [:red, Utils.format_cents_to_money(value)]
+          else
+            [:red, value]
+          end
         when String
           [:green, "\"#{value}\""]
         else

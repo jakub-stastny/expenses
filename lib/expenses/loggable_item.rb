@@ -80,7 +80,7 @@ module Expenses
 
     def serialise
       self.data.reduce({type: self.class.type_name}) do |result, (key, value)|
-        unless [nil, 0, ''].include?(value)
+        unless [nil, 0, ''].include?(value) || (value.respond_to?(:empty?) && value.empty?)
           result.merge(key => value)
         else
           result
@@ -102,7 +102,7 @@ module Expenses
 
     def validate_date(date_or_date_string)
       if date_or_date_string.is_a?(Date)
-        date
+        date_or_date_string
       elsif date_or_date_string.match(/^\d{4}-\d{2}-\d{2}$/)
         Date.parse(date_or_date_string)
       else

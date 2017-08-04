@@ -1,19 +1,13 @@
 Version 1.0:
 
 Expense:
+- Fully implement Item and adding them in the commander.
 - Where total_(usd|eur) and fee should be added? Deposit, Income ...
   # TODO: This should inherit from BaseExpense and Refund also, or alternatively
   # come up with helper for total_usd/total_eur calculations.
-- Support custom_data or inherit ExpenseWithUnitPrice that extends the data.
-  - Numbers could be expressions like:
-    2 * 3.40     => ExpenseWithUnitPrice
-    34.50 + 2.30 => Price + tip.
-    34.50 - 2.30 => Paid in total - tip.
 - One tag? required? One is easier to manage in the CLI app.
 
 Finish WithdrawalCommand.
-
-items: [{desc:, total:, note: nil}]
 
 BalanceCommand:
 - Add setting balances that creates UnknownExpense behind the scene.
