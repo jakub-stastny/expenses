@@ -95,9 +95,9 @@ module Expenses
   class BaseExpense < LoggableItem
     self.private_attributes = [:total_usd, :total_eur]
 
-    def initialize(date:, total:, location:, currency:, payment_method:, note: nil, total_usd: nil, total_eur: nil)
+    def initialize(date:, total: nil, location:, currency:, payment_method:, note: nil, total_usd: nil, total_eur: nil)
       @date     = validate_date(date)
-      @total    = validate_amount_in_cents(total) # Including tip.
+      @total    = validate_amount_in_cents(total) if total # Including tip.
       @currency = validate_currency(currency)
       @note     = note
       @location = location
@@ -119,7 +119,7 @@ module Expenses
 
   # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
   class Expense < BaseExpense
-    def initialize(date:, desc:, total:, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, vale_la_pena: nil, fee: nil, items: Array.new, total_usd: nil, total_eur: nil)
+    def initialize(date:, desc:, total: nil, tip: 0, location:, currency:, note: nil, tag: nil, payment_method:, vale_la_pena: nil, fee: nil, items: Array.new, total_usd: nil, total_eur: nil)
       @desc = validate_desc(desc)
       @tip  = validate_amount_in_cents(tip)
       @tag  = validate_tag(tag) if tag && ! tag.empty?

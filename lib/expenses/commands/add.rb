@@ -36,7 +36,7 @@ module Expenses
           # Required arguments that don't have reasonable defaults,
           # we ask for explicitly.
           prompt_desc
-          prompt_total
+          # prompt_total
 
           most_common_tag = Utils.most_common_attribute_value(expenses, :tag)
 
@@ -46,8 +46,8 @@ module Expenses
           # whether the purchase was expensive or not.
           most_common_payment_method = Utils.most_common_attribute_value(expenses, :payment_method)
 
-          total_data = @prompt.data.delete(:total)
-          data_input = @prompt.data.merge(total: total_data[:total])
+          # total_data = @prompt.data.delete(:total)
+          data_input = @prompt.data#.merge(total: total_data[:total])
 
           data = data_input.merge(
             date: Date.today,
@@ -56,12 +56,12 @@ module Expenses
             tag: most_common_tag || '#groceries',
             payment_method: most_common_payment_method || 'cash')
 
-          data.merge!(total_data)
+          # data.merge!(total_data)
           expense = Expense.new(**data)
 
           # Optional arguments or arguments with reasonable defaults.
           # Can be changed from the commander.
-          ExpenseCommander.new(app).run(expenses, expense)
+          ExpenseCommander.new(app).run(@collection, expense)
 
           app.destroy
         end

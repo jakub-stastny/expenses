@@ -18,7 +18,7 @@ module Expenses
         item.type == :expense && item.payment_method == payment_method
       end
 
-      last_item_with_balance.balance - current_expenses.sum(&:total)
+      last_item_with_balance.balance - current_expenses.map(&:items).flatten.sum(&:total)
     end
 
     def self.find_last_item_with_balance_for_cash(collection, currency)

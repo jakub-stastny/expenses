@@ -1,9 +1,11 @@
+require 'refined-refinements/colours'
 require 'expenses/item'
 require 'expenses/commands/lib/common_prompts'
 require 'expenses/commands/commanders/item_screen'
+require 'expenses/commands/commanders/commander_mode'
 
 module Expenses
-  class ItemCommander
+  class ItemCommander < CommanderMode
     include CommonPrompts
 
     def initialize(app)
@@ -12,7 +14,7 @@ module Expenses
       end
     end
 
-    def run
+    def run(expense)
       window = Curses::Window.new(Curses.lines, Curses.cols, 0, 0)
       window.refresh
 
@@ -27,7 +29,7 @@ module Expenses
 
       commander = @app.commander
 
-      super(commander, @app, @prompt)
+      super(commander, @app, @prompt, item)
 
       commander.command('x') do |commander_window|
         item.quantity ||= 1

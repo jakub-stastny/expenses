@@ -84,17 +84,15 @@ module Expenses
                 raise 'xxx'
               end
               operand = match[:value_2].to_i
-              r = {total: value_1 * operand, unit_price: value_1, quantity: operand}
+              r = {total: value_1 * operand, count: operand}
             when '/'
               # 6.80 / 2 (tickets).
               # 57.75 / 48.95
               if match[:value_2].match(Regexp.quote('.'))
-                r = {total: value_1, unit_price: value_1, quantity: match[:value_2].to_f}
+                r = {total: value_1, unit: 'ml', quantity: value_2, tag: '#fuel'}
               else
-                r = {total: value_1, unit: 'litre', unit_price: value_1, quantity: match[:value_2].to_i, tag: '#fuel'}
+                r = {total: value_1, count: match[:value_2].to_i}
               end
-              operand = match[:value_2].match(Regexp.quote('.')) ? match[:value_2].to_f : match[:value_2].to_i
-              r = {total: value_1, unit_price: value_1, quantity: operand}
             when '+' # 32.90 + 3.10
               r = {total: value_1 + value_2, tip: [value_1, value_2].min}
             when '-' # 32.90 - 3.10

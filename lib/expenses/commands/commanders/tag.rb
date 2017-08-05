@@ -1,7 +1,12 @@
+require 'refined-refinements/colours'
+require 'expenses/commands/commanders/commander_mode'
+
 module Expenses
-  class TagCommander
-    def initialize(commander)
-      @commander = commander
+  class TagCommander < CommanderMode
+    using RR::ColourExts
+
+    def initialize(app)
+      @commander = app.commander
     end
 
     # TODO: cycle_between_values, cycle_backwards_between_values, cache_values_for

@@ -11,10 +11,10 @@ module Expenses
       end
     end
 
-    def run(expenses, expense)
+    def run(collection, expense)
       commander = @app.commander
 
-      super(commander, @app, @prompt)
+      super(commander, @app, @prompt, expense)
 
       commander.command('d') do |commander_window|
         expense.date -= 1
@@ -27,7 +27,7 @@ module Expenses
       end
 
       commander.command('#') do |commander_window|
-        TagCommander.new(app.commander).run(expense)
+        TagCommander.new(@app).run(collection.expenses, expense)
 
         # case expense.tag
         # when '#fuel'
@@ -42,36 +42,36 @@ module Expenses
         currency: 'c', payment_method: 'p'
       }.each do |attribute, command|
         commander.command(command) do |commander_window|
-          cycle_between_values(expenses, expense, attribute)
+          cycle_between_values(collection.expenses, expense, attribute)
         end
 
         commander.command(command.upcase) do |commander_window|
-          cycle_backwards_between_values(expenses, expense, attribute)
+          cycle_backwards_between_values(collection.expenses, expense, attribute)
         end
       end
 
       commander.command('v') do |commander_window|
         values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
-        @cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
+        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
         _cycle_between_values(expense, :vale_la_pena)
       end
 
       commander.command('V') do |commander_window|
         values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
-        @cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
+        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
         _cycle_backwards_between_values(expense, :vale_la_pena)
       end
 
       commander.command('l') do |commander_window|
-        cycle_between_values(expenses, expense, :location)
-        set_currency_based_on_location(expenses, expense)
-        update_payment_method_if_online(expenses, expense)
+        cycle_between_values(collection.expenses, expense, :location)
+        set_currency_based_on_location(collection.expenses, expense)
+        update_payment_method_if_online(collection.expenses, expense)
       end
 
       commander.command('L') do |commander_window|
-        cycle_backwards_between_values(expenses, expense, :location)
-        set_currency_based_on_location(expenses, expense)
-        update_payment_method_if_online(expenses, expense)
+        cycle_backwards_between_values(collection.expenses, expense, :location)
+        set_currency_based_on_location(collection.expenses, expense)
+        update_payment_method_if_online(collection.expenses, expense)
       end
 
       commander.command('g') do |commander_window|
@@ -96,16 +96,16 @@ module Expenses
       end
 
       commander.command('i') do |commander_window|
-        ItemCommander.new(@app).run
+        ItemCommander.new(@app).run(expense)
       end
 
       commander.command('s', 'save') do |commander_window|
-        @collection << expense
-        @collection.save
+        collection << expense
+        collection.save
         raise QuitError.new # Quit the commander.
         app.destroy # Quit the app.
 
-        puts "\nExpense #{@collection.items.last.serialise.inspect} has been saved."
+        puts "\nExpense #{collection.items.last.serialise.inspect} has been saved."
       end
 
       commander.command('q', 'quit without saving') do |commander_window|

@@ -1,6 +1,8 @@
 module Expenses
   class CommanderMode
-    def run(commander, app, prompt)
+    using RR::ColourExts
+
+    def run(commander, app, prompt, object)
       commander.command('e') do |commander_window|
         prompt = self.prompt_proc(app, commander_window)
 
@@ -17,15 +19,19 @@ module Expenses
         if editable_attributes.keys.include?(key = input.to_sym)
           attribute = input.to_sym
           new_value = editable_attributes[key].call
-          expense.send("#{attribute}=", new_value)
+          object.send("#{attribute}=", new_value)
         else
           # log ...
         end
       end
     end
 
+    def cache
+      @cache ||= Hash.new
+    end
+
     def cache_values_for(expenses, attribute) # TODO: clear when new one is added (i. e. using the e command).
-      @cache[:"values_for_#{attribute}"] ||= begin
+      self.cache[:"values_for_#{attribute}"] ||= begin
         expenses.map(&attribute).uniq.sort_by { |value|
           expenses.count { |expense| expense.send(attribute) == value }
         }.reverse
@@ -33,34 +39,34 @@ module Expenses
     end
 
     def init_last_index_cache(attribute, value)
-      @cache[:"last_#{attribute}_index"] ||= begin
-        cached_values = @cache[:"values_for_#{attribute}"]
+      self.cache[:"last_#{attribute}_index"] ||= begin
+        cached_values = self.cache[:"values_for_#{attribute}"]
         value == cached_values.first ? 0 : -1
       end
     end
 
     def reset_last_index_cache_if_last(attribute)
-      if @cache[:"last_#{attribute}_index"] == @cache[:"values_for_#{attribute}"].length
-        @cache[:"last_#{attribute}_index"] = 0
+      if self.cache[:"last_#{attribute}_index"] == self.cache[:"values_for_#{attribute}"].length
+        self.cache[:"last_#{attribute}_index"] = 0
       end
     end
 
     def select_next_if_current_selection_equals_next_item(attribute, current_item)
-      current_index = @cache[:"values_for_#{attribute}"].index(current_item)
-      if current_index == @cache[:"last_#{attribute}_index"]
-        @cache[:"last_#{attribute}_index"] += 1
+      current_index = self.cache[:"values_for_#{attribute}"].index(current_item)
+      if current_index == self.cache[:"last_#{attribute}_index"]
+        self.cache[:"last_#{attribute}_index"] += 1
       end
     end
 
     def blink_if_starting_over(attribute)
-      if @cache[:"last_#{attribute}_index"] == 0
+      if self.cache[:"last_#{attribute}_index"] == 0
         # TODO: Blink when starting the next circle.
       end
     end
 
     def set_expense_attribute_to_selection(expense, attribute)
-      values = @cache[:"values_for_#{attribute}"]
-      expense.send(:"#{attribute}=", values[@cache[:"last_#{attribute}_index"]])
+      values = self.cache[:"values_for_#{attribute}"]
+      expense.send(:"#{attribute}=", values[self.cache[:"last_#{attribute}_index"]])
     end
 
     def cycle_between_values(expenses, expense, attribute)
@@ -70,7 +76,7 @@ module Expenses
 
     def _cycle_between_values(expense, attribute)
       self.init_last_index_cache(attribute, expense.send(attribute))
-      @cache[:"last_#{attribute}_index"] += 1
+      self.cache[:"last_#{attribute}_index"] += 1
 
       self.reset_last_index_cache_if_last(attribute)
       self.select_next_if_current_selection_equals_next_item(attribute, expense.send(attribute))
@@ -86,10 +92,10 @@ module Expenses
 
     def _cycle_backwards_between_values(expense, attribute)
       self.init_last_index_cache(attribute, expense.send(attribute))
-      @cache[:"last_#{attribute}_index"] -= 1
+      self.cache[:"last_#{attribute}_index"] -= 1
 
-      if @cache[:"last_#{attribute}_index"] < 0
-        @cache[:"last_#{attribute}_index"] = @cache[:"values_for_#{attribute}"].length + @cache[:"last_#{attribute}_index"]
+      if self.cache[:"last_#{attribute}_index"] < 0
+        self.cache[:"last_#{attribute}_index"] = self.cache[:"values_for_#{attribute}"].length + self.cache[:"last_#{attribute}_index"]
       end
 
       self.select_next_if_current_selection_equals_next_item(attribute, expense.send(attribute))

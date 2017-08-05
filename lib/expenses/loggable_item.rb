@@ -25,11 +25,11 @@ module Expenses
     end
 
     def self.private_attributes
-      @private_attributes ||= Array.new
+      @private_attributes ||= [:type]
     end
 
     def self.private_attributes=(list)
-      @private_attributes = list
+      @private_attributes = (list | [:type])
     end
 
     def self.public_attributes
@@ -38,6 +38,10 @@ module Expenses
 
     def type
       self.class.type_name
+    end
+
+    def data
+      {type: type}.merge(super)
     end
 
     def public_data
