@@ -38,7 +38,6 @@ module Expenses
         end
       end
 
-      # longest_item = items.map(&:first).max_by(&:length)
       longest_item = items.map { |items| RR::TemplateString.new(items.first) }.max_by(&:length)
 
       if (@longest_item_length || 0) < longest_item.length

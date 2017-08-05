@@ -26,7 +26,8 @@ module Expenses
     end
 
     def attributes_with_guessed_defaults
-      [:date, :location, :payment_method, :tag]
+      $GUESSED_DEFAULTS ||= Array.new
+      [:date, :location, :payment_method] | $GUESSED_DEFAULTS
     end
 
     def empty_attributes
@@ -39,7 +40,7 @@ module Expenses
 
     def run(commander, commander_window)
       super(commander, commander_window, 'Expense') do
-        @expense.public_data
+        @expense.public_data.merge(tag: @expense.tag)
       end
     end
   end

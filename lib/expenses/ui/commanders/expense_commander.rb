@@ -1,3 +1,4 @@
+require 'refined-refinements/colours'
 require 'expenses/ui/commanders/commander_mode'
 require 'expenses/ui/screens/item_screen'
 require 'expenses/ui/screens/tags_screen'
@@ -5,6 +6,8 @@ require 'expenses/ui/screens/expense_screen'
 
 module Expenses
   class ExpenseCommander < CommanderMode
+    using RR::ColourExts
+
     def initialize(app)
       @app, @prompt = app, RR::Prompt.new do |prompt|
         app.readline(prompt)
@@ -27,8 +30,7 @@ module Expenses
       end
 
       commander.command('#') do |commander_window|
-        TagCommander.new(@app).run(collection.expenses, expense)
-        # @tag_editor_window.refresh; sleep 3 ####
+        TagCommander.new(@app).run(collection, expense)
       end
 
       {
@@ -107,6 +109,29 @@ module Expenses
 
       commander.loop do |commander, commander_window|
         ExpenseScreen.new(expense).run(commander, commander_window)
+        unless expense.items.empty?
+          commander_window.write("  <yellow>items:</yellow> # Press <red.bold>i</red.bold> to add an item.\n")
+          expense.items.each do |item|
+            str = item.quantity ? "<bold>#{item.quantity}#{item.unit}</bold> " : ''
+            str += "x <bold>#{item.count}</bold>" if item.count
+            commander_window.write("    -  <red>#{Utils.format_cents_to_money(item.total)}</red> #{[item.desc, str].join(' ')} <green>#{item.tag}</green>\n")
+            commander_window.write("         #{item.note}\n") if item.note
+
+            if item.vale_la_pena
+              tag = case item.vale_la_pena
+              when 1 then 'green'
+              when 2 then 'red'
+              when 3 then 'yellow' end
+              commander_window.write("         <#{tag}>#{SerialisableItem::VALE_LA_PENA_LABELS[item.vale_la_pena]}</#{tag}>\n")
+            end
+          end
+
+          if expense.items.length >= 2
+            commander_window.write("       <bold>Total:</bold> <red>#{Utils.format_cents_to_money(expense.items.sum(&:total))}</red>\n")
+          end
+
+          commander_window.refresh
+        end
       end
     end
   end

@@ -1,8 +1,6 @@
 Version 1.0:
 App#readline: support unicode.
 
-Deprecate Expense#tag, but leave the tag commander in expense for setting a default of its items.
-
 Expense:
 - Where total_(usd|eur) and fee should be added? Deposit, Income ...
   # TODO: This should inherit from BaseExpense and Refund also, or alternatively

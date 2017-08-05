@@ -25,6 +25,7 @@ module Expenses
       data = @prompt.data
       total_data = data.delete(:total)
       data.merge!(total_data)
+      data[:tag] = expense.tag || QueryEngine.new(collection).tags[0]
 
       item = Item.new(@prompt.data)
 
@@ -47,15 +48,13 @@ module Expenses
       end
 
       commander.command('#') do |commander_window|
-        TagCommander.new(@app).run(collection.expenses, expense)
+        TagCommander.new(@app).run(collection, item)
 
         # case expense.tag
         # when '#fuel'
-        #   expense.unit_price ||= prompt_money(:unit_price, 'Unit price')
-        #   expense.quantity ||= prompt_money(:quantity, 'Litres')
+        #   TODO: Ask additional details. Such as #alcohol, OK, how strong?
+        #   Presuming we already know how much from the quantity.
         # end
-
-        # @tag_editor_window.refresh; sleep 3 ####
       end
 
       # Copied from expense.rb

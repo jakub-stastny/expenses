@@ -1,5 +1,13 @@
 require 'expenses/models/loggable_item'
 
+require 'expenses/models/balance'
+require 'expenses/models/deposit'
+require 'expenses/models/income'
+require 'expenses/models/item'
+require 'expenses/models/refund'
+require 'expenses/models/ride'
+require 'expenses/models/withdrawal'
+
 module Expenses
   class BaseExpense < LoggableItem
     self.private_attributes = [:total_usd, :total_eur]
@@ -27,13 +35,12 @@ module Expenses
 
   # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
   class Expense < BaseExpense
-    def initialize(date:, desc:, tip: 0, location:, currency:, note: nil, tag:,
+    def initialize(date:, desc:, tip: 0, location:, currency:, note: nil,
       payment_method:, vale_la_pena: nil, fee: 0, items: Array.new,
       total_usd: nil, total_eur: nil)
 
       @desc = validate_desc(desc)
       @tip  = validate_amount_in_cents(tip)
-      @tag  = validate_tag(tag) if tag && ! tag.empty?
       @vale_la_pena = validate_integer(vale_la_pena) if vale_la_pena
       @fee  = validate_amount_in_cents(fee) if fee
       @items = items
@@ -47,6 +54,8 @@ module Expenses
       attr_accessor attribute
     end
 
+    attr_accessor :tag # Just so we can have a default for items.
+
     def total
       self.items.sum(&:total) + self.tip + self.fee
     end
@@ -55,7 +64,8 @@ module Expenses
   class UnknownExpense < BaseExpense
     def initialize(date:, total:, location:, currency:, payment_method:, note: nil, total_usd: nil, total_eur: nil)
       @total = validate_amount_in_cents(total)
-      super(date, location, currency, payment_method, note, total_usd, total_eur)
+      super(date: date, location: location, currency: currency,
+        payment_method: payment_method, note: note, total_usd: total_usd, total_eur: total_eur)
     end
 
     self.attributes.each do |attribute|
@@ -67,7 +77,7 @@ module Expenses
     end
 
     def items
-      [Item.new(total: self.total, desc: self.desc)]
+      [Item.new(total: self.total, desc: self.desc, tag: '#unknown')]
     end
   end
 end
