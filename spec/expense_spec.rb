@@ -1,4 +1,4 @@
-require 'expenses/expense'
+require 'expenses/models/expense'
 
 describe Expenses::Expense do
   let(:data) do

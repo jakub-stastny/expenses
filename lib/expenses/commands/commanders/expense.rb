@@ -28,13 +28,6 @@ module Expenses
 
       commander.command('#') do |commander_window|
         TagCommander.new(@app).run(collection.expenses, expense)
-
-        # case expense.tag
-        # when '#fuel'
-        #   expense.unit_price ||= prompt_money(:unit_price, 'Unit price')
-        #   expense.quantity ||= prompt_money(:quantity, 'Litres')
-        # end
-
         # @tag_editor_window.refresh; sleep 3 ####
       end
 
@@ -96,7 +89,7 @@ module Expenses
       end
 
       commander.command('i') do |commander_window|
-        ItemCommander.new(@app).run(expense)
+        ItemCommander.new(@app).run(collection, expense)
       end
 
       commander.command('s', 'save') do |commander_window|

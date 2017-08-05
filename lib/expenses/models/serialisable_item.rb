@@ -25,11 +25,7 @@ module Expenses
           "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}")
       end
 
-      loggable_item_class = self.types[data[:type].to_sym] || raise("Unknown type #{data[:type]}.")
-      data.delete(:type)
-      loggable_item_class.new(data.tap { |data|
-        data[:date] = Date.parse(data[:date])
-      })
+      self.new(data)
     end
 
     def data

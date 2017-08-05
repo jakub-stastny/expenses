@@ -1,9 +1,9 @@
 Version 1.0:
-maslanka ta dobra 5.58 / 2
 App#readline: support unicode.
 
+Deprecate Expense#tag, but leave the tag commander in expense for setting a default of its items.
+
 Expense:
-- Fully adding Item's in the commander.
 - Where total_(usd|eur) and fee should be added? Deposit, Income ...
   # TODO: This should inherit from BaseExpense and Refund also, or alternatively
   # come up with helper for total_usd/total_eur calculations.

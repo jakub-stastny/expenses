@@ -1,4 +1,4 @@
-require 'expenses/expense'
+require 'expenses/models/expense'
 require 'expenses/collection'
 require 'refined-refinements/cli/commander'
 

@@ -1,6 +1,6 @@
 require 'date'
 require 'expenses/converter'
-require 'expenses/serialisable_item'
+require 'expenses/models/serialisable_item'
 
 module Expenses
   class LoggableItem < SerialisableItem
@@ -38,6 +38,36 @@ module Expenses
 
     def type
       self.class.type_name
+    end
+
+    def self.deserialise(data)
+      data = data.reduce(Hash.new) do |result, (key, value)|
+        result.merge(key.to_sym => value)
+      end
+
+      if data[:items] # TODO: move into expense.
+        data[:items].map! do |item_data|
+          Item.deserialise(item_data.reduce(Hash.new) do |result, (key, value)|
+            result.merge(key.to_sym => value)
+          end)
+        end
+      end
+
+      # The following would happen anyway, we're only providing a better message.
+      required_keys = self.instance_method(:initialize).parameters[0..-2].
+        select { |type, name| type == :keyreq }.map(&:last)
+
+      unless required_keys.all? { |required_key| data.has_key?(required_key) }
+        missing_keys = required_keys - data.keys
+        raise ArgumentError.new(
+          "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}")
+      end
+
+      loggable_item_class = self.types[data[:type].to_sym] || raise("Unknown type #{data[:type]}.")
+      data.delete(:type)
+      loggable_item_class.new(data.tap { |data|
+        data[:date] = Date.parse(data[:date])
+      })
     end
 
     def data

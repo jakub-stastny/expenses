@@ -3,6 +3,7 @@ require 'expenses/item'
 require 'expenses/commands/lib/common_prompts'
 require 'expenses/commands/commanders/item_screen'
 require 'expenses/commands/commanders/commander_mode'
+require 'expenses/commands/commanders/tag'
 
 module Expenses
   class ItemCommander < CommanderMode
@@ -14,7 +15,7 @@ module Expenses
       end
     end
 
-    def run(expense)
+    def run(collection, expense)
       window = Curses::Window.new(Curses.lines, Curses.cols, 0, 0)
       window.refresh
 
@@ -43,6 +44,18 @@ module Expenses
         else
           item.quantity -= 1
         end
+      end
+
+      commander.command('#') do |commander_window|
+        TagCommander.new(@app).run(collection.expenses, expense)
+
+        # case expense.tag
+        # when '#fuel'
+        #   expense.unit_price ||= prompt_money(:unit_price, 'Unit price')
+        #   expense.quantity ||= prompt_money(:quantity, 'Litres')
+        # end
+
+        # @tag_editor_window.refresh; sleep 3 ####
       end
 
       # Copied from expense.rb

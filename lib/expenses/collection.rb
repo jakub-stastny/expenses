@@ -1,6 +1,6 @@
 require 'json'
-require 'expenses/loggable_item'
-require 'expenses/expense'
+require 'expenses/models/loggable_item'
+require 'expenses/models/expense'
 require 'refined-refinements/collection'
 
 module Expenses
