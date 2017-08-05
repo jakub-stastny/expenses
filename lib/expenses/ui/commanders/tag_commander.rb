@@ -1,5 +1,5 @@
 require 'refined-refinements/colours'
-require 'expenses/commands/commanders/commander_mode'
+require 'expenses/ui/commanders/commander_mode'
 
 module Expenses
   class TagCommander < CommanderMode

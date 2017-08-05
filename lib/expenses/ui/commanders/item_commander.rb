@@ -1,9 +1,9 @@
 require 'refined-refinements/colours'
-require 'expenses/item'
+require 'expenses/models/item'
 require 'expenses/commands/lib/common_prompts'
-require 'expenses/commands/commanders/item_screen'
-require 'expenses/commands/commanders/commander_mode'
-require 'expenses/commands/commanders/tag'
+require 'expenses/ui/screens/item_screen'
+require 'expenses/ui/commanders/commander_mode'
+require 'expenses/ui/commanders/tag_commander'
 
 module Expenses
   class ItemCommander < CommanderMode

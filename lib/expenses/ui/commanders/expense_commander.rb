@@ -1,7 +1,7 @@
-require 'expenses/commands/commanders/commander_mode'
-require 'expenses/commands/commanders/item'
-require 'expenses/commands/commanders/tag'
-require 'expenses/commands/commanders/expense_screen'
+require 'expenses/ui/commanders/commander_mode'
+require 'expenses/ui/screens/item_screen'
+require 'expenses/ui/screens/tags_screen'
+require 'expenses/ui/screens/expense_screen'
 
 module Expenses
   class ExpenseCommander < CommanderMode

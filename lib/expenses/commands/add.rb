@@ -1,10 +1,10 @@
 require 'refined-refinements/curses/app'
 require 'refined-refinements/cli/prompt'
 require 'expenses/commands/lib/common_prompts'
-require 'expenses/commands/commanders/item'
-require 'expenses/commands/commanders/tag'
-require 'expenses/commands/commanders/expense'
-require 'expenses/commands/commanders/expense_screen'
+require 'expenses/ui/commanders/item_commander'
+require 'expenses/ui/commanders/tag_commander'
+require 'expenses/ui/commanders/expense_commander'
+require 'expenses/ui/screens/expense_screen'
 require 'expenses/utils'
 
 module Expenses
