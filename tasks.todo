@@ -1,6 +1,25 @@
 Version 1.0:
 App#readline: support unicode.
 
+ItemCommander: 'e' command doesn't work.
+
+Allow to edit items:
+Consider adding context-aware editing:
+  /masl Search for "masl" and move the cursor there. ALSO j/k/up/down.
+  Then we can be more vim-y, like dd -> anuluj hodnotu or delete item.
+  e => edit THAT item.
+
+# Improve 'e'. Allow esc to quit.
+#   Maybe split into 3 windows (expense data, middle, status line)?
+#     That conflicts with App.new.run do |app, window|
+
+# TODO: Press 'e', then prompt "Which attribute? ", you say "ta<tab>",
+# it completes it to "tag", press Enter, then write the new value.
+# This is useful only for values that can have unlimited variations of
+# values such as tag, tip, total or if it's a new location, then location
+# as well, otherwise it's more convenient to cycle between the values
+# by pressing say "c" multiple times (first run: EUR, second: CZK ...).
+
 Expense:
 - Where total_(usd|eur) and fee should be added? Deposit, Income ...
   # TODO: This should inherit from BaseExpense and Refund also, or alternatively
@@ -15,19 +34,6 @@ BalanceCommand:
 ReviewCommand:
 - Add fees for withdrawals and income items (fee + divergence from the official exchange rate).
 - Finish.
-
-AddCommand:
-# Improve 'e'. Allow esc to quit.
-#   Maybe split into 3 windows (expense data, middle, status line)?
-#     That conflicts with App.new.run do |app, window|
-# Improve the tag editor.
-
-# TODO: Press 'e', then prompt "Which attribute? ", you say "ta<tab>",
-# it completes it to "tag", press Enter, then write the new value.
-# This is useful only for values that can have unlimited variations of
-# values such as tag, tip, total or if it's a new location, then location
-# as well, otherwise it's more convenient to cycle between the values
-# by pressing say "c" multiple times (first run: EUR, second: CZK ...).
 
 # indulgence: #eating_out, #crawings, #tea, #drinks
 # essential: #groceries (although ...), #mhd
@@ -72,6 +78,7 @@ Budgets:
   - Should it be one or should it differ per location?
 - Pleasures: from alcohol to flights to Colombia.
 - Values of long-term value: bike, razor etc.
+- Support in LastCommand.
 
 Later:
 - Add other LoggableItems into the add command and switch between them by 't' (type).
