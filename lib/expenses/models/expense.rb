@@ -10,34 +10,43 @@ require 'expenses/models/withdrawal'
 
 module Expenses
   class BaseExpense < LoggableItem
-    self.private_attributes = [:total_usd, :total_eur]
+    self.private_attributes = [:rates]
 
-    def initialize(date:, location:, currency:, payment_method:, note: nil, total_usd: nil, total_eur: nil)
+    def initialize(date:, location:, currency:, payment_method:, note: nil, rates: Hash.new)
       @date     = validate_date(date)
       @currency = validate_currency(currency)
       @note     = note
       @location = location
       @payment_method = payment_method
-
-      @total_usd = if total_usd then validate_amount_in_cents(total_usd)
-      elsif @currency == 'USD' then @total
-      else convert_currency(@total, @currency, 'USD') end
-
-      @total_eur = if total_eur then validate_amount_in_cents(total_eur)
-      elsif @currency == 'EUR' then @total
-      else convert_currency(@total, @currency, 'EUR') end
+      @rates = rates || Hash.new
     end
 
     self.attributes.each do |attribute|
       attr_accessor attribute
+    end
+
+    def get_exhange_rates
+      get_exhange_rate('EUR', @currency)
+      get_exhange_rate('USD', @currency)
+      get_exhange_rate('CZK', @currency)
+    end
+
+    def get_exhange_rate(base_currency, dest_currency)
+      return if base_currency == dest_currency || @rates[base_currency]
+      result = convert_currency(1, base_currency, dest_currency)
+      @rates[base_currency] = result if result
+    end
+
+    def serialise
+      self.get_exhange_rates
+      super
     end
   end
 
   # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
   class Expense < BaseExpense
     def initialize(date:, desc:, tip: 0, location:, currency:, note: nil,
-      payment_method:, vale_la_pena: nil, fee: 0, items: Array.new,
-      total_usd: nil, total_eur: nil)
+      payment_method:, vale_la_pena: nil, fee: 0, items: Array.new, rates: Hash.new)
 
       @desc = validate_desc(desc)
       @tip  = validate_amount_in_cents(tip)
@@ -47,7 +56,7 @@ module Expenses
 
       super(date: date, location: location,
         currency: currency, payment_method: payment_method,
-        note: note, total_usd: total_usd, total_eur: total_eur)
+        note: note, rates: rates)
     end
 
     self.attributes.each do |attribute|
@@ -62,10 +71,10 @@ module Expenses
   end
 
   class UnknownExpense < BaseExpense
-    def initialize(date:, total:, location:, currency:, payment_method:, note: nil, total_usd: nil, total_eur: nil)
+    def initialize(date:, total:, location:, currency:, payment_method:, note: nil, total_eur: nil, rates: Hash.new)
       @total = validate_amount_in_cents(total)
       super(date: date, location: location, currency: currency,
-        payment_method: payment_method, note: note, total_usd: total_usd, total_eur: total_eur)
+        payment_method: payment_method, note: note, rates: rates)
     end
 
     self.attributes.each do |attribute|

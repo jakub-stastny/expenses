@@ -1,5 +1,6 @@
 require 'json'
 require 'open-uri'
+require 'socket' # So we can rescue from SocketError. Do we need it though since it doesn't come with open-uri?
 
 module Expenses
   class ConversionError < StandardError; end
@@ -28,12 +29,12 @@ module Expenses
 
     def convert(dest_currency, amount)
       unless amount.is_a?(Numeric)
-        raise TypeError.new("Amount has to be a number, ideally integer, was #{amount.inspect}.")
+        raise TypeError.new("Amount for #{base_currency} -> #{dest_currency} conversion has to be a number, ideally integer, was #{amount.inspect}.")
       end
 
       return amount if @base_currency == dest_currency
       currency_rates[dest_currency] * amount
-    rescue SocketError => error
+    rescue ::SocketError => error
       raise ConversionError.new(error)
     end
 

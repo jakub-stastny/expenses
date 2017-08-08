@@ -58,6 +58,7 @@ module Expenses
 
           # data.merge!(total_data)
           expense = Expense.new(**data)
+          expense.get_exhange_rates # Can we do this in the background?
 
           if previous_expense = expenses.reverse.find { |e| e.desc == expense.desc }
             expense.tag = qe.attribute_values_with_counts(previous_expense.items).map(&:first).first
