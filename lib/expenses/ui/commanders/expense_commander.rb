@@ -70,7 +70,7 @@ module Expenses
       end
 
       commander.command('g') do |commander_window|
-        @prompt = self.prompt_proc(app, commander_window)
+        @prompt = self.prompt_proc(@app, commander_window)
 
         y = commander_window.cury + ((Curses.lines - commander_window.cury) / 2) # TODO: This works, except the current position is (I think) wrong.
         commander_window.setpos(y, 0)
@@ -79,7 +79,7 @@ module Expenses
       end
 
       commander.command('n') do |commander_window|
-        @prompt = self.prompt_proc(app, commander_window)
+        @prompt = self.prompt_proc(@app, commander_window)
 
         commander_window.setpos(Curses.lines, 0)
 
@@ -115,14 +115,14 @@ module Expenses
             str = item.quantity ? "<bold>#{item.quantity}#{item.unit}</bold> " : ''
             str += "x <bold>#{item.count}</bold>" if item.count
             commander_window.write("    -  <red>#{Utils.format_cents_to_money(item.total)}</red> #{[item.desc, str].join(' ')} <green>#{item.tag}</green>\n")
-            commander_window.write("         #{item.note}\n") if item.note
+            commander_window.write("             #{item.note}\n") if item.note
 
             if item.vale_la_pena
               tag = case item.vale_la_pena
-              when 1 then 'green'
-              when 2 then 'red'
-              when 3 then 'yellow' end
-              commander_window.write("         <#{tag}>#{SerialisableItem::VALE_LA_PENA_LABELS[item.vale_la_pena]}</#{tag}>\n")
+              when 0 then 'green'
+              when 1 then 'red'
+              when 2 then 'yellow' end
+              commander_window.write("             <#{tag}>#{SerialisableItem::VALE_LA_PENA_LABELS[item.vale_la_pena]}</#{tag}>\n")
             end
           end
 

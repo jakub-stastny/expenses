@@ -70,6 +70,18 @@ module Expenses
         item.note = @prompt.data[:note]
       end
 
+      commander.command('v') do |commander_window|
+        values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
+        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
+        _cycle_between_values(item, :vale_la_pena)
+      end
+
+      commander.command('V') do |commander_window|
+        values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
+        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
+        _cycle_backwards_between_values(item, :vale_la_pena)
+      end
+
       commander.command('s', 'save the item') do |commander_window|
         expense.items << item
         raise QuitError.new # Quit the commander.
