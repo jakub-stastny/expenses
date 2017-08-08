@@ -69,7 +69,7 @@ module Expenses
         update_payment_method_if_online(collection.expenses, expense)
       end
 
-      commander.command('g') do |commander_window|
+      commander.command('t') do |commander_window|
         @prompt = self.prompt_proc(@app, commander_window)
 
         y = commander_window.cury + ((Curses.lines - commander_window.cury) / 2) # TODO: This works, except the current position is (I think) wrong.

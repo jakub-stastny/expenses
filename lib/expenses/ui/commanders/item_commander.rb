@@ -33,17 +33,17 @@ module Expenses
 
       super(commander, @app, @prompt, item)
 
-      commander.command('x') do |commander_window|
-        item.quantity ||= 1
-        item.quantity += 1
+      commander.command('c') do |commander_window|
+        item.count ||= 1
+        item.count += 1
       end
 
-      commander.command('X') do |commander_window|
-        item.quantity ||= 1
-        if item.quantity == 2
-          item.quantity = nil
+      commander.command('C') do |commander_window|
+        item.count ||= 1
+        if item.count == 2 || item.count == 1
+          item.count = nil
         else
-          item.quantity -= 1
+          item.count -= 1
         end
       end
 

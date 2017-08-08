@@ -1,6 +1,9 @@
+require 'expenses/commands/lib/common_prompts'
+
 module Expenses
   class CommanderMode
     using RR::ColourExts
+    include CommonPrompts
 
     def run(commander, app, prompt, object)
       commander.command('e') do |commander_window|

@@ -13,7 +13,7 @@ module Expenses
         location: "Press <red.bold>l</red.bold>/<red.bold>L</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
         currency: "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values or set a new one by pressing <red.bold>e</red.bold>.",
         payment_method: "Press <red.bold>p</red.bold>/<red.bold>P</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
-        tip: "Press <red.bold>g</red.bold> to edit.",
+        tip: "Press <red.bold>t</red.bold> to edit.",
         note: "Press <red.bold>n</red.bold> to edit.",
         tag: "Press <red.bold>#</red.bold> to set.",
         vale_la_pena: "Press <red.bold>v</red.bold>/<red.bold>V</red.bold> to cycle between values."

@@ -63,7 +63,7 @@ module Expenses
       /x
 
       help = <<-EOF.gsub(/^\s*/, '')
-        <yellow>10</yellow>, <yellow>10.25</yellow> or <green>3.40 * 2</green> for specifying quantity or <green>54.25 / 49.80</green> for fuel
+        <yellow>10</yellow> or <green>3.40 * 2</green> for quantity or <green>54.25 / 49.80</green> for fuel
       EOF
 
       @prompt.prompt(:total, 'Total', help: help.chomp.colourise) do
