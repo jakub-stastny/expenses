@@ -57,13 +57,13 @@ module Expenses
       value_or_expression_regexp = /
         ^
           (?<value_1>\d+(\.\d{2})?)     # First value.
-            (\s*(?<operator>[-+*\/])\s* # Operator.
+            (\s*(?<operator>[*\/])\s*   # Operator.
           (?<value_2>\d+(?:\.\d{2})?))? # Second value.
         $
       /x
 
       help = <<-EOF.gsub(/^\s*/, '')
-        <yellow>10</yellow>, <yellow>10.25</yellow> or <green>3.40 * 2</green> for specifying quantity, <green>54.20 + 3.10</green> or <green>54.20 - 3.10</green> for adding tip or <green>54.25 / 49.80</green> for fuel
+        <yellow>10</yellow>, <yellow>10.25</yellow> or <green>3.40 * 2</green> for specifying quantity or <green>54.25 / 49.80</green> for fuel
       EOF
 
       @prompt.prompt(:total, 'Total', help: help.chomp.colourise) do
@@ -93,11 +93,13 @@ module Expenses
               else
                 r = {total: value_1, count: match[:value_2].to_i}
               end
-            when '+' # 32.90 + 3.10
-              r = {total: value_1 + value_2, tip: [value_1, value_2].min}
-            when '-' # 32.90 - 3.10
-              raise 'x' if value_2 > value_1
-              r = {total: value_1, tip: value_2}
+            # DEPRECATED: Since we moved prices to items, but tip stayed
+            # on the expense itself, these no longer make sense.
+            # when '+' # 32.90 + 3.10
+            #   r = {total: value_1 + value_2, tip: [value_1, value_2].min}
+            # when '-' # 32.90 - 3.10
+            #   raise 'x' if value_2 > value_1
+            #   r = {total: value_1, tip: value_2}
             end
           else
             r = {total: convert_money_to_cents(match[:value_1])}

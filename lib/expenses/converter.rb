@@ -8,7 +8,9 @@ module Expenses
     # @api private
     def self.currency_rates
       @currency_rates ||= Hash.new do |hash, key|
-        hash[key] = self.get_currency_rates_for(key)
+        unless hash[key] = self.get_currency_rates_for(key)
+          raise "Cannot get currency rates for #{key}."
+        end
       end
     end
 
@@ -25,6 +27,10 @@ module Expenses
     end
 
     def convert(dest_currency, amount)
+      unless amount.is_a?(Numeric)
+        raise TypeError.new("Amount has to be a number, ideally integer, was #{amount.inspect}.")
+      end
+
       return amount if @base_currency == dest_currency
       currency_rates[dest_currency] * amount
     rescue SocketError => error
