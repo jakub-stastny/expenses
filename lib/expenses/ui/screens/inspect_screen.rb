@@ -30,7 +30,7 @@ module Expenses
           key_tag = self.attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
 
           if key == :vale_la_pena && value
-            value = Expense::VALE_LA_PENA_LABELS[value]
+            value = SerialisableItem::VALE_LA_PENA_LABELS[value]
           end
 
           value_tag, value_text = highlight(key, value)

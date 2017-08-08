@@ -71,13 +71,13 @@ module Expenses
       end
 
       commander.command('v') do |commander_window|
-        values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
+        values = SerialisableItem::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
         self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
         _cycle_between_values(item, :vale_la_pena)
       end
 
       commander.command('V') do |commander_window|
-        values = Expense::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
+        values = SerialisableItem::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
         self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
         _cycle_backwards_between_values(item, :vale_la_pena)
       end
