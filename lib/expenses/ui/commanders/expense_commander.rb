@@ -18,15 +18,19 @@ module Expenses
       commander = @app.commander
       expense_screen = ExpenseScreen.new(expense)
 
-      super(commander, @app, @prompt, expense)
+      super(commander, @app, expense, expense_screen)
 
-      commander.command('d') do |commander_window|
-        expense.date -= 1
-      end
-
-      commander.command('D') do |commander_window|
-        unless expense.date == Date.today
-          expense.date += 1
+      expense_screen.attributes.each do |attribute|
+        if attribute.globally_cyclable?
+          command = attribute.global_cyclable_command
+          commander.command([command, command.upcase]) do |char, commander_window|
+            attribute.cycle(expense, char)
+          end
+        elsif attribute.globally_editable?
+          command = attribute.global_editable_command
+          commander.command([command, command.upcase]) do |char, commander_window|
+            attribute.edit(expense, char)
+          end
         end
       end
 
@@ -34,77 +38,18 @@ module Expenses
         TagCommander.new(@app).run(collection, expense)
       end
 
-      {
-        currency: 'c', payment_method: 'p'
-      }.each do |attribute, command|
-        commander.command(command) do |commander_window|
-          cycle_between_values(collection.expenses, expense, attribute)
-        end
-
-        commander.command(command.upcase) do |commander_window|
-          cycle_backwards_between_values(collection.expenses, expense, attribute)
-        end
+      commander.command(['j', 258]) do |commander_window|
+        @selected_attribute = expense_screen.set_next_attribute
+        # if expense_screen.editable_lines.include?(@yposition + 1)
+        #   @yposition += 1
+        # end
       end
 
-      commander.command('v') do |commander_window|
-        values = SerialisableItem::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
-        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
-        _cycle_between_values(expense, :vale_la_pena)
-      end
-
-      commander.command('V') do |commander_window|
-        values = SerialisableItem::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
-        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
-        _cycle_backwards_between_values(expense, :vale_la_pena)
-      end
-
-      commander.command('l') do |commander_window|
-        cycle_between_values(collection.expenses, expense, :location)
-        set_currency_based_on_location(collection.expenses, expense)
-        update_payment_method_if_online(collection.expenses, expense)
-      end
-
-      commander.command('L') do |commander_window|
-        cycle_backwards_between_values(collection.expenses, expense, :location)
-        set_currency_based_on_location(collection.expenses, expense)
-        update_payment_method_if_online(collection.expenses, expense)
-      end
-
-      commander.command('t') do |commander_window|
-        @prompt = self.prompt_proc(@app, commander_window)
-
-        y = commander_window.cury + ((Curses.lines - commander_window.cury) / 2) # TODO: This works, except the current position is (I think) wrong.
-        commander_window.setpos(y, 0)
-        prompt_money(:tip, 'Tip', allow_empty: true)
-        expense.tip = @prompt.data[:tip]
-      end
-
-      commander.command('n') do |commander_window|
-        @prompt = self.prompt_proc(@app, commander_window)
-
-        commander_window.setpos(Curses.lines, 0)
-
-        @prompt.prompt(:note, 'Note') do
-          clean_value { |raw_value| raw_value }
-        end
-
-        expense.note = @prompt.data[:note]
-      end
-
-      # TODO: Plus sipka dolu.
-      commander.command('j') do |commander_window|
-        if expense_screen.editable_lines.include?(@yposition + 1)
-          @yposition += 1
-          commander_window.setpos(@yposition, 0)
-        end
-      end
-
-      # ... and sipka nahoru.
-      commander.command('k') do |commander_window|
-        if expense_screen.editable_lines.include?(@yposition - 1)
-          @yposition -= 1
-          commander_window.setpos(@yposition, 0)
-        end
+      commander.command(['k', 259]) do |commander_window|
+        @selected_attribute = expense_screen.set_previous_attribute
+        # if expense_screen.editable_lines.include?(@yposition - 1)
+        #   @yposition -= 1
+        # end
       end
 
       commander.command('i') do |commander_window|
@@ -125,9 +70,8 @@ module Expenses
       end
 
       commander.loop do |commander, commander_window|
-        @yposition ||= 2 # expense_screen.editable_lines.first
-        expense_screen.run(commander, commander_window, @yposition)
-        # commander_window.setpos(yposition, 0)
+        expense_screen.run(commander, commander_window, @selected_attribute, @last_run_message)
+        @last_run_message = nil
       end
     end
   end

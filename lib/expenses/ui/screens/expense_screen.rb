@@ -1,23 +1,13 @@
 require 'refined-refinements/colours'
 require 'expenses/ui/screens/inspect_screen'
+require 'expenses/ui/screens/expense_screen_attributes'
 
 module Expenses
   class ExpenseScreen < InspectScreen
     using RR::ColourExts
 
-    def help
-      {
-        date: "Set to previous/next day by pressing <red.bold>d</red.bold>/<red.bold>D</red.bold>.",
-        desc: nil,
-        total: nil, # To tam ted neni.
-        location: "Press <red.bold>l</red.bold>/<red.bold>L</red.bold> to cycle between values.",
-        currency: "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values.",
-        payment_method: "Press <red.bold>p</red.bold>/<red.bold>P</red.bold> to cycle between values.",
-        tip: "Press <red.bold>t</red.bold> to edit.",
-        note: "Press <red.bold>n</red.bold> to edit.",
-        tag: "Press <red.bold>#</red.bold> to set.",
-        vale_la_pena: "Press <red.bold>v</red.bold>/<red.bold>V</red.bold> to cycle between values."
-      }
+    def attributes
+      ExpenseScreenAttributes::ALL
     end
 
     def hidden_attributes
@@ -38,15 +28,15 @@ module Expenses
       @expense = expense
     end
 
-    def run(commander, commander_window, yposition)
-      super(commander, commander_window, 'Expense', yposition) do
+    def run(commander, commander_window, selected_attribute = nil, last_run_message = nil)
+      super(commander, commander_window, 'Expense', selected_attribute, last_run_message) do
         @expense.public_data.merge(tag: @expense.tag)
       end
 
-      self.display_items(commander, commander_window, yposition)
+      self.display_items(commander, commander_window, selected_attribute)
     end
 
-    def display_items(commander, commander_window, yposition)
+    def display_items(commander, commander_window, selected_attribute)
       unless @expense.items.empty?
         commander_window.write("  <yellow>items:</yellow> # Press <red.bold>i</red.bold> to add an item.\n")
         @expense.items.each do |item|
