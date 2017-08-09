@@ -28,9 +28,9 @@ module Expenses
       end
     end
 
-    def cycle_values_of_selected_attribute(app, object, char)
+    def cycle_values_of_selected_attribute(app, collection, object, char)
       if @selected_attribute.cyclable?
-        @selected_attribute.cycle(app, object, char)
+        @selected_attribute.cycle(app, collection, object, char)
       else
         "Values #{@selected_attribute.name} can't be cycled."
       end

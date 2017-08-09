@@ -1,6 +1,5 @@
 require 'expenses/ui/screens/screen_attribute'
 
-# up/down doesn't work.
 # (edit should really edit, also 'c' should clear.)
 # TODO: make on_red work (last_run_message)
 module Expenses
@@ -61,6 +60,38 @@ module Expenses
         SerialisableItem::VALE_LA_PENA_LABELS[value] if value
       end
 
+      attribute.cycle_values do |collection, expense|
+        SerialisableItem::VALE_LA_PENA_LABELS + [nil]
+      end
+
+      attribute.display_help do |value, is_selected|
+        command = is_selected ? 'c' : 'v'
+        "Press <red.bold>#{command}</red.bold>/<red.bold>#{command.upcase}</red.bold> to cycle between values."
+      end
+
+      attribute
+    end
+
+    def self.location
+      attribute = InspectScreenAttribute.new(:location, cyclable: true, editable: true, global_cyclable_command: 'l')
+
+      attribute.cycle_values do |collection, expense|
+        query_engine = QueryEngine.new(collection)
+        query_engine.attribute_values_with_counts(collection.expenses, :location).map(&:first)
+      end
+
+      attribute.after_update do |collection, expense|
+        location = expense.location
+
+        last_same_location_expense = collection.expenses.reverse.find do |expense|
+          expense.location == location
+        end
+
+        if last_same_location_expense
+          expense.currency = last_same_location_expense.currency
+        end
+      end
+
       attribute.display_help do |value, is_selected|
         command = is_selected ? 'c' : 'v'
         "Press <red.bold>#{command}</red.bold>/<red.bold>#{command.upcase}</red.bold> to cycle between values."
@@ -74,11 +105,7 @@ module Expenses
       InspectScreenAttribute.new(:desc, {
         editable: true
       }),
-      InspectScreenAttribute.new(:location, {
-        editable: true,
-        cyclable: true,
-        global_cyclable_command: 'l'
-      }),
+      self.location,
       InspectScreenAttribute.new(:currency, {
         editable: true,
         help: "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values."

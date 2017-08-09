@@ -1,17 +1,13 @@
 Version 1.0:
-WIP App#readline: support unicode.
+
+App#readline: support unicode.
+  https://github.com/ruby/curses/issues/35
 
 edit last, last - 1 ...
+cache exchange rates.
 
-Allow to edit items:
-Consider adding context-aware editing:
-  /masl Search for "masl" and move the cursor there. ALSO j/k/up/down.
-  Then we can be more vim-y, like dd -> anuluj hodnotu or delete item.
-  e => edit THAT item.
-       Allow esc to quit.
-#   Maybe split into 3 windows (expense data, middle, status line)?
-#     That conflicts with App.new.run do |app, window|
-# e (edit), d (delete), c (cycle between values).
+d (or something like dd, d is already allocated to date): delete an item (if attribute is deletable: true)
+Consider search (/masl<Enter>), move cursor there.
 
 Expense:
 - Where rates and fee should be added? Deposit, Income ...

@@ -24,7 +24,7 @@ module Expenses
         if attribute.globally_cyclable?
           command = attribute.global_cyclable_command
           commander.command([command, command.upcase]) do |commander_window, char|
-            attribute.cycle(@app, expense, char)
+            attribute.cycle(@app, collection, expense, char)
           end
         elsif attribute.globally_editable?
           command = attribute.global_editable_command
@@ -35,7 +35,7 @@ module Expenses
       end
 
       commander.command(['c', 'C']) do |commander_window, char|
-        result = expense_screen.cycle_values_of_selected_attribute(@app, expense, char)
+        result = expense_screen.cycle_values_of_selected_attribute(@app, collection, expense, char)
         @last_run_message = result if result.is_a?(String)
       end
 

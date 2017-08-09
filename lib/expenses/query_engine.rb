@@ -11,10 +11,10 @@ module Expenses
       self.attribute_values_with_counts(items).map(&:first)
     end
 
-    def attribute_values_with_counts(list)
+    def attribute_values_with_counts(list, attribute = :tag)
       attributes_with_counts = list.reduce(Hash.new) do |buffer, item|
-        buffer[item.tag] ||= 0
-        buffer[item.tag] += 1
+        buffer[item.send(attribute)] ||= 0
+        buffer[item.send(attribute)] += 1
         buffer
       end
 

@@ -66,14 +66,30 @@ module Expenses
       @attributes[:global_editable_command]
     end
 
-    def cycle(app, object, char)
+    def cycle_values(&block)
+      @cycle_values_block = block
+    end
+
+    def after_update(&block)
+      @after_update_block = block
+    end
+
+    def cycle(app, collection, object, char)
       callable = @attributes[:cycle] || Proc.new do |app, object, command|
-        if ('A'..'Z').include?(char) # TODO ...
-          value = app.readline("New value:")
-          object.send("#{self.name}=", value)
+        values = @cycle_values_block.call(collection, object)
+        current_value = object.send(self.name)
+
+        if ('A'..'Z').include?(char)
+          next_index = (values.index(current_value) || 1) - 1
         else
-          value = app.readline("New value:")
-          object.send("#{self.name}=", value)
+          next_index = (values.index(current_value) || -1) + 1
+          next_index = 0 if next_index == values.length
+        end
+
+        object.send("#{self.name}=", values[next_index])
+
+        if @after_update_block
+          @after_update_block.call(collection, object)
         end
       end
 
@@ -82,8 +98,13 @@ module Expenses
 
     def edit(app, object)
       callable = @attributes[:edit] || Proc.new do |app, object|
-        value = app.readline("New value:")
-        object.send("#{self.name}=", value)
+        value = app.readline("New value:") do |key|
+          if key.key_code == 27 # Quit on Escape.
+            @was_escape_quitted = true
+            raise QuitError.new
+          end
+        end
+        object.send("#{self.name}=", value) unless @was_escape_quitted
       end
 
       callable.call(app, object)
