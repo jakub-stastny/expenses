@@ -1,6 +1,8 @@
 require 'expenses/ui/screens/screen_attribute'
 
-# date: cycling doesn't work.
+# up/down doesn't work.
+# (edit should really edit, also 'c' should clear.)
+# TODO: make on_red work (last_run_message)
 module Expenses
   module ExpenseScreenAttributes
     def self.date
@@ -11,7 +13,7 @@ module Expenses
         "Set to previous/next day by pressing <red.bold>#{command}</red.bold>/<red.bold>#{command.upcase}</red.bold>."
       end
 
-      attribute.do_cycle('d') do |expense, command|
+      attribute.do_cycle('d') do |app, expense, command|
         if command == 'd' || command == 'c'
           expense.date -= 1
         else

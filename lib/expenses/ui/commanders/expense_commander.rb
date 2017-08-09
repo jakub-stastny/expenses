@@ -23,33 +23,32 @@ module Expenses
       expense_screen.attributes.each do |attribute|
         if attribute.globally_cyclable?
           command = attribute.global_cyclable_command
-          commander.command([command, command.upcase]) do |char, commander_window|
-            attribute.cycle(expense, char)
+          commander.command([command, command.upcase]) do |commander_window, char|
+            attribute.cycle(@app, expense, char)
           end
         elsif attribute.globally_editable?
           command = attribute.global_editable_command
-          commander.command([command, command.upcase]) do |char, commander_window|
+          commander.command([command, command.upcase]) do |commander_window, char|
             attribute.edit(expense, char)
           end
         end
+      end
+
+      commander.command(['c', 'C']) do |commander_window, char|
+        result = expense_screen.cycle_values_of_selected_attribute(@app, expense, char)
+        @last_run_message = result if result.is_a?(String)
       end
 
       commander.command('#') do |commander_window|
         TagCommander.new(@app).run(collection, expense)
       end
 
-      commander.command(['j', 258]) do |commander_window|
+      commander.command(['j', 258]) do |commander_window, char|
         @selected_attribute = expense_screen.set_next_attribute
-        # if expense_screen.editable_lines.include?(@yposition + 1)
-        #   @yposition += 1
-        # end
       end
 
       commander.command(['k', 259]) do |commander_window|
         @selected_attribute = expense_screen.set_previous_attribute
-        # if expense_screen.editable_lines.include?(@yposition - 1)
-        #   @yposition -= 1
-        # end
       end
 
       commander.command('i') do |commander_window|

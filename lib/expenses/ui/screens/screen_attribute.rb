@@ -20,8 +20,7 @@ module Expenses
     end
 
     def render(key, value, is_selected)
-      # key_tag = self.attributes_with_guessed_defaults.include?(key) ? 'yellow.bold' : 'yellow'
-      key_tag = 'yellow'
+      key_tag = @highlighted ? 'yellow.bold' : 'yellow'
       value_tag, value_text = highlight(key, value)
       help = self.help(value, is_selected)
       ["<#{key_tag}>#{key}:</#{key_tag}> <#{value_tag}>#{value_text}</#{value_tag}>", help]
@@ -67,13 +66,18 @@ module Expenses
       @attributes[:global_editable_command]
     end
 
-    def cycle(app, object)
-      callable = @attributes[:cycle] || Proc.new do |app, object|
-        value = app.readline("New value:")
-        object.send("#{self.name}=", value)
+    def cycle(app, object, char)
+      callable = @attributes[:cycle] || Proc.new do |app, object, command|
+        if ('A'..'Z').include?(char) # TODO ...
+          value = app.readline("New value:")
+          object.send("#{self.name}=", value)
+        else
+          value = app.readline("New value:")
+          object.send("#{self.name}=", value)
+        end
       end
 
-      callable.call(app, object)
+      callable.call(app, object, char)
     end
 
     def edit(app, object)
@@ -83,6 +87,10 @@ module Expenses
       end
 
       callable.call(app, object)
+    end
+
+    def highlight!
+      @highlighted = true
     end
 
     def highlight(key, value)

@@ -10,25 +10,20 @@ module Expenses
       ExpenseScreenAttributes::ALL
     end
 
-    def hidden_attributes
-      # We don't know the fee yet, that's what review is for.
-      Expense.private_attributes + [:fee, :items]
-    end
-
-    def attributes_with_guessed_defaults
-      $GUESSED_DEFAULTS ||= Array.new
-      [:date, :location, :payment_method] | $GUESSED_DEFAULTS
-    end
-
-    def empty_attributes
-      [:vale_la_pena, :note, :tip]
-    end
-
     def initialize(expense)
       @expense = expense
     end
 
     def run(commander, commander_window, selected_attribute = nil, last_run_message = nil)
+      attributes_with_guessed_defaults = [:date, :location, :payment_method]
+      empty_attributes = [:vale_la_pena, :note, :tip]
+
+      self.attributes.each do |attribute|
+        if (attributes_with_guessed_defaults | empty_attributes).include?(attribute.name)
+          attribute.highlight!
+        end
+      end
+
       super(commander, commander_window, 'Expense', selected_attribute, last_run_message) do
         @expense.public_data.merge(tag: @expense.tag)
       end
@@ -55,9 +50,16 @@ module Expenses
         end
 
         if @expense.items.length >= 2
-          commander_window.write("       <bold>Total:</bold> <red>#{Utils.format_cents_to_money(@expense.items.sum(&:total))}</red>\n")
+          total = Utils.format_cents_to_money(@expense.items.sum(&:total))
+          if @expense.currency == 'EUR'
+            commander_window.write("       <bold>Total:</bold> <red>#{total} #{@expense.currency}</red>\n")
+          else
+            total_eur = Converter.new(@expense.currency).convert('EUR', total)
+            commander_window.write("       <bold>Total:</bold> <red>#{total} #{@expense.currency}</red> (#{total_eur} EUR)\n")
+          end
         end
 
+        # commander_window.setpos(commander_window.cury + 5, 0) # TODO make work.
         commander_window.refresh
       end
     end

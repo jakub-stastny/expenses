@@ -9,18 +9,6 @@ module Expenses
       Array.new
     end
 
-    def hidden_attributes
-      Array.new
-    end
-
-    def attributes_with_guessed_defaults
-      Array.new
-    end
-
-    def empty_attributes
-      Array.new
-    end
-
     def run(commander, commander_window, label, selected_attribute = nil, last_run_message = nil, &block)
       @selected_attribute = selected_attribute || self.attributes.first
       data = @data = block.call
@@ -37,6 +25,14 @@ module Expenses
         @selected_attribute.edit(app, object)
       else
         "Attribute #{@selected_attribute.name} isn't directly editable."
+      end
+    end
+
+    def cycle_values_of_selected_attribute(app, object, char)
+      if @selected_attribute.cyclable?
+        @selected_attribute.cycle(app, object, char)
+      else
+        "Values #{@selected_attribute.name} can't be cycled."
       end
     end
 
@@ -81,7 +77,7 @@ module Expenses
     def set_status_line(commander, commander_window, last_run_message)
       original_y = commander_window.cury
       commander_window.setpos(Curses.lines - 1, 0)
-      commander_window.write(last_run_message ? "#{last_run_message} #{commander.help}" : commander.help)
+      commander_window.write(last_run_message ? "<on_red>#{last_run_message}</on_red> #{commander.help}" : commander.help)
       commander_window.setpos(original_y, 0)
     end
   end
