@@ -1,6 +1,8 @@
 Version 1.0:
 WIP App#readline: support unicode.
 
+edit last, last - 1 ...
+
 Allow to edit items:
 Consider adding context-aware editing:
   /masl Search for "masl" and move the cursor there. ALSO j/k/up/down.

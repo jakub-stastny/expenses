@@ -43,7 +43,7 @@ module Expenses
     end
 
     def validate_tag(tag)
-      unless tag.match(/^#[a-z_]+$/)
+      unless tag.match(/^#[a-z_\d]+$/)
         raise ArgumentError.new("Tag has to be a #word_or_two.")
       end
 
