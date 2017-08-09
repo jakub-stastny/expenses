@@ -8,11 +8,11 @@ module Expenses
     def help
       {
         date: "Set to previous/next day by pressing <red.bold>d</red.bold>/<red.bold>D</red.bold>.",
-        desc: "Press <red.bold>e</red.bold> to edit.",
-        total: "Press <red.bold>e</red.bold> to edit.",
-        location: "Press <red.bold>l</red.bold>/<red.bold>L</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
-        currency: "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values or set a new one by pressing <red.bold>e</red.bold>.",
-        payment_method: "Press <red.bold>p</red.bold>/<red.bold>P</red.bold> to cycle between values or add a new one by pressing <red.bold>e</red.bold>.",
+        desc: nil,
+        total: nil, # To tam ted neni.
+        location: "Press <red.bold>l</red.bold>/<red.bold>L</red.bold> to cycle between values.",
+        currency: "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values.",
+        payment_method: "Press <red.bold>p</red.bold>/<red.bold>P</red.bold> to cycle between values.",
         tip: "Press <red.bold>t</red.bold> to edit.",
         note: "Press <red.bold>n</red.bold> to edit.",
         tag: "Press <red.bold>#</red.bold> to set.",
@@ -38,15 +38,15 @@ module Expenses
       @expense = expense
     end
 
-    def run(commander, commander_window)
-      super(commander, commander_window, 'Expense') do
+    def run(commander, commander_window, yposition)
+      super(commander, commander_window, 'Expense', yposition) do
         @expense.public_data.merge(tag: @expense.tag)
       end
 
-      self.display_items(commander, commander_window)
+      self.display_items(commander, commander_window, yposition)
     end
 
-    def display_items(commander, commander_window)
+    def display_items(commander, commander_window, yposition)
       unless @expense.items.empty?
         commander_window.write("  <yellow>items:</yellow> # Press <red.bold>i</red.bold> to add an item.\n")
         @expense.items.each do |item|

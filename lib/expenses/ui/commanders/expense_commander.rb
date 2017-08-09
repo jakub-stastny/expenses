@@ -16,6 +16,7 @@ module Expenses
 
     def run(collection, expense)
       commander = @app.commander
+      expense_screen = ExpenseScreen.new(expense)
 
       super(commander, @app, @prompt, expense)
 
@@ -90,6 +91,22 @@ module Expenses
         expense.note = @prompt.data[:note]
       end
 
+      # TODO: Plus sipka dolu.
+      commander.command('j') do |commander_window|
+        if expense_screen.editable_lines.include?(@yposition + 1)
+          @yposition += 1
+          commander_window.setpos(@yposition, 0)
+        end
+      end
+
+      # ... and sipka nahoru.
+      commander.command('k') do |commander_window|
+        if expense_screen.editable_lines.include?(@yposition - 1)
+          @yposition -= 1
+          commander_window.setpos(@yposition, 0)
+        end
+      end
+
       commander.command('i') do |commander_window|
         ItemCommander.new(@app).run(collection, expense)
       end
@@ -108,7 +125,9 @@ module Expenses
       end
 
       commander.loop do |commander, commander_window|
-        ExpenseScreen.new(expense).run(commander, commander_window)
+        @yposition ||= 2 # expense_screen.editable_lines.first
+        expense_screen.run(commander, commander_window, @yposition)
+        # commander_window.setpos(yposition, 0)
       end
     end
   end

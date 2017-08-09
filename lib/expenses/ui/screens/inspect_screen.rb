@@ -20,7 +20,9 @@ module Expenses
       Array.new
     end
 
-    def run(commander, commander_window, label, &block)
+    attr_reader :editable_lines
+    def run(commander, commander_window, label, yposition = nil, &block)
+      @editable_lines = Array.new
       data = block.call
 
       items = data.reduce(Array.new) do |buffer, (key, value)|
@@ -44,13 +46,26 @@ module Expenses
         @longest_item_length = longest_item.length + 7 # Give it some give, so it doesn't get updated too much.
       end
 
-      expense_data = items.map do |(data, help)|
+      expense_data = items.map.with_index do |(data, help), index|
         data_length = RR::TemplateString.new(data).length
         spaces = ' ' * (@longest_item_length - data_length)
-        "  #{data}#{spaces} # #{help}"
+        if yposition == index + 2
+          if help
+            help = "#{help[0..-2]} or press <red.bold>e</red.bold> to edit."
+          else
+            help = "Press <red.bold>e</red.bold> to edit."
+          end
+          "  <bold>#{data}#{spaces} # #{help}</bold>"
+        else
+          "  #{data}#{spaces} # #{help}"
+        end
       end
 
-      commander_window.write("<blue.bold>#{label}:</blue.bold>\n#{expense_data.join("\n")}\n")
+      @editable_lines = (1..(expense_data.length + 1)).to_a # 1 is for the label, editable from line 2.
+
+      text = "<blue.bold>#{label}:</blue.bold>\n#{expense_data.join("\n")}\n"
+      commander_window.write(text)
+      commander_window.setpos(yposition, 0) if yposition
 
       original_y = commander_window.cury
       commander_window.setpos(Curses.lines - 1, 0)
