@@ -50,12 +50,12 @@ module Expenses
         end
 
         if @expense.items.length >= 2
-          total = Utils.format_cents_to_money(@expense.items.sum(&:total))
+          total = @expense.items.sum(&:total)
           if @expense.currency == 'EUR'
-            commander_window.write("       <bold>Total:</bold> <red>#{total} #{@expense.currency}</red>\n")
+            commander_window.write("       <bold>Total:</bold> <red>#{Utils.format_cents_to_money(total)} #{@expense.currency}</red>\n")
           else
             total_eur = Converter.new(@expense.currency).convert('EUR', total)
-            commander_window.write("       <bold>Total:</bold> <red>#{total} #{@expense.currency}</red> (#{total_eur} EUR)\n")
+            commander_window.write("       <bold>Total:</bold> <red>#{Utils.format_cents_to_money(total_eur)} #{@expense.currency}</red> (#{total_eur} EUR)\n")
           end
         end
 

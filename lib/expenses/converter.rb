@@ -1,6 +1,7 @@
 require 'json'
 require 'open-uri'
-require 'socket' # So we can rescue from SocketError. Do we need it though since it doesn't come with open-uri?
+require 'socket' # So we can rescue from SocketError. One would expect this to
+# be defined once we load the open-uri library, but one would expect to much.
 
 module Expenses
   class ConversionError < StandardError; end
@@ -33,7 +34,8 @@ module Expenses
       return amount if @base_currency == dest_currency
       currency_rates[dest_currency] * amount
     rescue ::SocketError => error
-      raise ConversionError.new(error)
+      # raise ConversionError.new(error)
+      # just return nil, we'll add caching later.
     end
 
     private
