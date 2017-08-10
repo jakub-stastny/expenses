@@ -18,10 +18,7 @@ module Expenses
       commander = @app.commander
       expense_screen = ExpenseScreen.new(expense)
 
-      super(commander, @app, expense, expense_screen)
-      make_commands_from_attributes(@app, commander, expense_screen, collection, expense)
-      make_movable_commands(commander, expense_screen)
-      make_locally_editable_and_cyclable(@app, commander, expense_screen, collection, expense)
+      super(@app, commander, collection, expense, expense_screen)
 
       commander.command('#') do |commander_window|
         TagCommander.new(@app).run(collection, expense)

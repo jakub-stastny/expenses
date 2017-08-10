@@ -1,6 +1,9 @@
 module Expenses
   class CommanderMode
-    def run(commander, app, object, screen)
+    def run(app, commander, collection, object, screen)
+      make_commands_from_attributes(app, commander, screen, collection, object)
+      make_movable_commands(commander, screen)
+      make_locally_editable_and_cyclable(app, commander, screen, collection, object)
     end
 
     def make_locally_editable_and_cyclable(app, commander, screen, collection, object)
