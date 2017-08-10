@@ -1,5 +1,5 @@
 require 'refined-refinements/colours'
-require 'expenses/ui/screens/screen_attribute'
+require 'expenses/ui/attributes/screen_attribute'
 
 module Expenses
   class InspectScreen

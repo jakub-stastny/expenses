@@ -30,22 +30,12 @@ module Expenses
       item = Item.new(@prompt.data)
 
       commander = @app.commander
+      item_screen = ItemScreen.new(item)
 
       super(commander, @app, @prompt, item)
-
-      commander.command('c') do |commander_window|
-        item.count ||= 1
-        item.count += 1
-      end
-
-      commander.command('C') do |commander_window|
-        item.count ||= 1
-        if item.count == 2 || item.count == 1
-          item.count = nil
-        else
-          item.count -= 1
-        end
-      end
+      make_commands_from_attributes(@app, commander, item_screen, collection, item)
+      make_movable_commands(commander, item_screen)
+      make_locally_editable_and_cyclable(@app, commander, item_screen, collection, item)
 
       commander.command('#') do |commander_window|
         TagCommander.new(@app).run(collection, item)
@@ -55,31 +45,6 @@ module Expenses
         #   TODO: Ask additional details. Such as #alcohol, OK, how strong?
         #   Presuming we already know how much from the quantity.
         # end
-      end
-
-      # Copied from expense.rb
-      commander.command('n') do |commander_window|
-        @prompt = self.prompt_proc(@app, commander_window)
-
-        commander_window.setpos(Curses.lines, 0)
-
-        @prompt.prompt(:note, 'Note') do
-          clean_value { |raw_value| raw_value }
-        end
-
-        item.note = @prompt.data[:note]
-      end
-
-      commander.command('v') do |commander_window|
-        values = SerialisableItem::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
-        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
-        _cycle_between_values(item, :vale_la_pena)
-      end
-
-      commander.command('V') do |commander_window|
-        values = SerialisableItem::VALE_LA_PENA_LABELS.length.times.map { |i| i } + [nil]
-        self.cache[:"values_for_#{:vale_la_pena}"] = values # TODO: Worth sorting by how common they are.
-        _cycle_backwards_between_values(item, :vale_la_pena)
       end
 
       commander.command('s', 'save the item') do |commander_window|
@@ -94,7 +59,7 @@ module Expenses
       end
 
       commander.loop do |commander, commander_window|
-        ItemScreen.new(item).run(commander, commander_window)
+        item_screen.run(commander, commander_window)
       end
     end
   end

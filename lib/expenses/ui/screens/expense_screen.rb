@@ -1,6 +1,6 @@
 require 'refined-refinements/colours'
 require 'expenses/ui/screens/inspect_screen'
-require 'expenses/ui/screens/expense_screen_attributes'
+require 'expenses/ui/attributes/expense_screen_attributes'
 
 module Expenses
   class ExpenseScreen < InspectScreen
@@ -15,7 +15,7 @@ module Expenses
     end
 
     def run(commander, commander_window, selected_attribute = nil, last_run_message = nil)
-      attributes_with_guessed_defaults = [:date, :location, :payment_method]
+      attributes_with_guessed_defaults = [:date, :location, :payment_method] | $GUESSED_DEFAULTS
       empty_attributes = [:vale_la_pena, :note, :tip]
 
       self.attributes.each do |attribute|

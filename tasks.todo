@@ -1,5 +1,10 @@
 Version 1.0:
 
+Attribute#help(value, is_selected): support global_cyclable_command and global_editable_command.
+# (edit should really edit, also 'c' should clear.)
+# TODO: make on_red work (last_run_message)
+e: move cursor lower
+
 App#readline: support unicode.
   https://github.com/ruby/curses/issues/35
 

@@ -19,36 +19,12 @@ module Expenses
       expense_screen = ExpenseScreen.new(expense)
 
       super(commander, @app, expense, expense_screen)
-
-      expense_screen.attributes.each do |attribute|
-        if attribute.globally_cyclable?
-          command = attribute.global_cyclable_command
-          commander.command([command, command.upcase]) do |commander_window, char|
-            attribute.cycle(@app, collection, expense, char)
-          end
-        elsif attribute.globally_editable?
-          command = attribute.global_editable_command
-          commander.command([command, command.upcase]) do |commander_window, char|
-            attribute.edit(expense, char)
-          end
-        end
-      end
-
-      commander.command(['c', 'C']) do |commander_window, char|
-        result = expense_screen.cycle_values_of_selected_attribute(@app, collection, expense, char)
-        @last_run_message = result if result.is_a?(String)
-      end
+      make_commands_from_attributes(@app, commander, expense_screen, collection, expense)
+      make_movable_commands(commander, expense_screen)
+      make_locally_editable_and_cyclable(@app, commander, expense_screen, collection, expense)
 
       commander.command('#') do |commander_window|
         TagCommander.new(@app).run(collection, expense)
-      end
-
-      commander.command(['j', 258]) do |commander_window, char|
-        @selected_attribute = expense_screen.set_next_attribute
-      end
-
-      commander.command(['k', 259]) do |commander_window|
-        @selected_attribute = expense_screen.set_previous_attribute
       end
 
       commander.command('i') do |commander_window|

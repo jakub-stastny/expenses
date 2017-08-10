@@ -62,6 +62,7 @@ module Expenses
 
           if previous_expense = expenses.reverse.find { |e| e.desc == expense.desc }
             expense.tag = qe.attribute_values_with_counts(previous_expense.items).map(&:first).first
+            $GUESSED_DEFAULTS = []
           else
             $GUESSED_DEFAULTS = [:tag]
             most_common_tag = qe.tags.first
