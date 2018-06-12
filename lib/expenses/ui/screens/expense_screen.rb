@@ -44,9 +44,9 @@ module Expenses
 
           if item.vale_la_pena
             tag = case item.vale_la_pena
-            when 0 then 'green'
-            when 1 then 'red'
-            when 2 then 'yellow' end
+                  when 0 then 'green'
+                  when 1 then 'red'
+                  when 2 then 'yellow' end
             commander_window.write("             <#{tag}>#{SerialisableItem::VALE_LA_PENA_LABELS[item.vale_la_pena]}</#{tag}>\n")
           end
         end
