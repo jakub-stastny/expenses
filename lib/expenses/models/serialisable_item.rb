@@ -38,14 +38,14 @@ module Expenses
 
     def serialise
       self.data.reduce(Hash.new) do |result, (key, value)|
-        unless [nil, 0, ''].include?(value) || (value.respond_to?(:empty?) && value.empty?)
+        if [nil, 0, ''].include?(value) || (value.respond_to?(:empty?) && value.empty?)
+          result
+        else
           if value.is_a?(Array) && value[0].respond_to?(:serialise)
             result.merge(key => value.map(&:serialise))
           else
             result.merge(key => value)
           end
-        else
-          result
         end
       end
     end

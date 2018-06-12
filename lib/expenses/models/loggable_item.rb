@@ -77,10 +77,10 @@ module Expenses
 
     def public_data
       self.data.reduce(Hash.new) do |result, (key, value)|
-        unless self.class.private_attributes.include?(key)
-          result.merge(key => value)
-        else
+        if self.class.private_attributes.include?(key)
           result
+        else
+          result.merge(key => value)
         end
       end
     end

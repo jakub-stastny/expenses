@@ -18,10 +18,12 @@ module Expenses
 
       def run
         expenses = @collection.all_expenses
-        unless expenses.empty?
+        if expenses.empty?
+          puts "<red>The are no expenses yet.</red>".colourise
+        else
           last_three_logged_days = expenses.map(&:date).uniq[-3..-1]
           last_three_logged_days.each.with_index do |date, index|
-            puts "#{"\n" unless index == 0}<green>#{date.strftime("%A %d/%m")}</green>".colourise
+            puts "#{"\n" unless index == 0}<green>#{date.strftime('%A %d/%m')}</green>".colourise
             dates_expenses = expenses.select do |expense|
               expense.date == date
             end
@@ -31,8 +33,6 @@ module Expenses
             end
             puts "  <bold>Total:</bold> #{Utils.format_cents_to_money(dates_expenses.sum(&:total))}".colourise # TODO: different currencies?
           end
-        else
-          puts "<red>The are no expenses yet.</red>".colourise
         end
       end
     end
