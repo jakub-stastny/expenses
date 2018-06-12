@@ -74,7 +74,7 @@ module Expenses
           end
 
           validate_clean_value do |clean_value|
-            clean_value && ! clean_value.empty?
+            clean_value && !clean_value.empty?
           end
         end
       end

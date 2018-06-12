@@ -33,9 +33,9 @@ module Expenses
         @attributes[:help].call(value, is_selected)
       elsif @attributes[:help]
         @attributes[:help]
-      elsif @attributes[:help].nil? && self.editable? && ! self.cyclable?
+      elsif @attributes[:help].nil? && self.editable? && !self.cyclable?
         "Press <red.bold>#{value ? 'e' : 's'}</red.bold> to #{value ? 'edit' : 'set'}."
-      elsif @attributes[:help].nil? && self.cyclable? && ! self.editable?
+      elsif @attributes[:help].nil? && self.cyclable? && !self.editable?
         "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values."
       elsif @attributes[:help].nil? && self.editable? && self.cyclable?
         "Press <red.bold>c</red.bold>/<red.bold>C</red.bold> to cycle between values or <red.bold>#{value ? 'e' : 's'}</red.bold> to #{value ? 'edit' : 'set'}."

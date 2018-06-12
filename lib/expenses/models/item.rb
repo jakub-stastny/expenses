@@ -17,7 +17,7 @@ module Expenses
       @desc = validate_desc(desc)
       @total = validate_amount_in_cents(total)
       @note = note
-      @tag = validate_tag(tag) if tag && ! tag.empty?
+      @tag = validate_tag(tag) if tag && !tag.empty?
       @vale_la_pena = validate_vale_la_pena(vale_la_pena)
       @quantity = quantity
       @unit = unit
