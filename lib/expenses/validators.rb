@@ -5,7 +5,7 @@ module Expenses
     def validate_date(date_or_date_string)
       if date_or_date_string.is_a?(Date)
         date_or_date_string
-      elsif date_or_date_string.match(/^\d{4}-\d{2}-\d{2}$/)
+      elsif date_or_date_string =~ /^\d{4}-\d{2}-\d{2}$/
         Date.parse(date_or_date_string)
       else
         raise TypeError.new("Date has to be an instance of Date.")
@@ -37,7 +37,7 @@ module Expenses
     end
 
     def validate_currency(currency)
-      unless currency.match(/^[A-Z]{3}$/)
+      unless currency =~ /^[A-Z]{3}$/
         raise ArgumentError.new("Currency has to be a three-number code such as CZK.")
       end
 
@@ -45,7 +45,7 @@ module Expenses
     end
 
     def validate_tag(tag)
-      unless tag.match(/^#[a-z_\d]+$/)
+      unless tag =~ /^#[a-z_\d]+$/
         raise ArgumentError.new("Tag has to be a #word_or_two.")
       end
 

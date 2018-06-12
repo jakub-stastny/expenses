@@ -43,12 +43,12 @@ module Expenses
       end
 
       x = (groups[true] || ['0']).join
-      y = groups[false].join unless groups[false].join.match(/^0{1,2}$/)
+      y = groups[false].join unless groups[false].join =~ /^0{1,2}$/
       [x, y].compact.join('.')
     end
 
     def self.money_to_cents(raw_value)
-      if raw_value.match(/\./)
+      if raw_value =~ /\./
         raw_value.delete('.').to_i
       else
         "#{raw_value}00".to_i
