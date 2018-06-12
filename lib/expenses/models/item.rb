@@ -12,8 +12,8 @@ module Expenses
     # Item.new(desc: "Maślanka naturalna", total: 215, quantity: 1000, unit: 'mililitres', count: 2)
     #   This means we bought 2 boxes of maślanka, 1 litre each.
     def initialize(desc:, total:, note: nil,
-      tag: nil, vale_la_pena: nil,
-      quantity: nil, unit: nil, count: nil)
+                   tag: nil, vale_la_pena: nil,
+                   quantity: nil, unit: nil, count: nil)
       @desc = validate_desc(desc)
       @total = validate_amount_in_cents(total)
       @note = note

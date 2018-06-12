@@ -48,7 +48,7 @@ module Expenses
   # Fee: if it's not cash, then (how much disapeared from my account) - expense.total.
   class Expense < BaseExpense
     def initialize(date:, desc:, tip: 0, location:, currency:, note: nil,
-      payment_method:, vale_la_pena: nil, fee: 0, items: Array.new, rates: Hash.new)
+                   payment_method:, vale_la_pena: nil, fee: 0, items: Array.new, rates: Hash.new)
 
       @desc = validate_desc(desc)
       @tip  = validate_amount_in_cents(tip)
