@@ -12,7 +12,7 @@ module Expenses
         clean_value do |raw_value|
           case raw_value
           when /^$/ then Date.today
-          when /^-(\d+)$/ then Date.today - $1.to_i
+          when /^-(\d+)$/ then Date.today - Regexp.last_match(1).to_i
           else Date.parse(raw_value) end
         end
 
