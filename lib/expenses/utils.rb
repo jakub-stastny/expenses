@@ -48,7 +48,7 @@ module Expenses
     end
 
     def self.money_to_cents(raw_value)
-      if raw_value =~ /\./
+      if /\./.match?(raw_value)
         raw_value.delete('.').to_i
       else
         "#{raw_value}00".to_i

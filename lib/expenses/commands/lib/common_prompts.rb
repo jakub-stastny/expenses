@@ -82,7 +82,7 @@ module Expenses
               # 2.10 * 100g (bag of rice)
               # 2.10 * 100g * 2 (2 bags of rice)
               # NOTE: Fuel would be dealt by the / operand.
-              if match[:value_2].match(Regexp.quote('.'))
+              if match[:value_2].match?(Regexp.quote('.'))
                 raise 'xxx'
               end
               operand = match[:value_2].to_i
@@ -90,7 +90,7 @@ module Expenses
             when '/'
               # 6.80 / 2 (tickets).
               # 57.75 / 48.95
-              if match[:value_2].match(Regexp.quote('.'))
+              if match[:value_2].match?(Regexp.quote('.'))
                 r = {total: value_1, unit: 'ml', quantity: value_2, tag: '#fuel'}
               else
                 r = {total: value_1, count: match[:value_2].to_i}
