@@ -4,12 +4,12 @@ require 'expenses/models/expense'
 
 describe Expenses::Expense do
   let(:data) do
-    { 'date'     => '2017-06-16',
-      'type'     => 'essential',
-      'desc'     => '10 kg worth of rice',
-      'total'    => 12000, # In cents.
-      'currency' => 'CZK',
-      'location' => 'PT'}
+    {'date' => '2017-06-16',
+     'type'     => 'essential',
+     'desc'     => '10 kg worth of rice',
+     'total'    => 12000, # In cents.
+     'currency' => 'CZK',
+     'location' => 'PT'}
   end
 
   describe '.deserialise(data)' do
@@ -79,12 +79,12 @@ describe Expenses::Expense do
 
   describe '.new' do
     let(:data) do
-      { date: Date.parse('2017-06-16'),
-        type: 'essential',
-        desc: '10 kg worth of rice',
-        total: 12000,
-        currency: 'CZK',
-        location: 'PT' }
+      {date: Date.parse('2017-06-16'),
+       type: 'essential',
+       desc: '10 kg worth of rice',
+       total: 12000,
+       currency: 'CZK',
+       location: 'PT'}
     end
 
     subject do
@@ -240,12 +240,12 @@ describe Expenses::Expense do
 
   describe '#==(anotherExpense)' do
     let(:data) do
-      { date: Date.parse('2017-06-16'),
-        type: 'essential',
-        desc: '10 kg worth of rice',
-        total: 12000,
-        currency: 'CZK',
-        location: 'PT' }
+      {date: Date.parse('2017-06-16'),
+       type: 'essential',
+       desc: '10 kg worth of rice',
+       total: 12000,
+       currency: 'CZK',
+       location: 'PT'}
     end
 
     subject do
