@@ -88,11 +88,11 @@ module Expenses
             when '/'
               # 6.80 / 2 (tickets).
               # 57.75 / 48.95
-              if match[:value_2].match?(Regexp.quote('.'))
-                r = {total: value_1, unit: 'ml', quantity: value_2, tag: '#fuel'}
+              r = if match[:value_2].match?(Regexp.quote('.'))
+                {total: value_1, unit: 'ml', quantity: value_2, tag: '#fuel'}
               else
-                r = {total: value_1, count: match[:value_2].to_i}
-              end
+                {total: value_1, count: match[:value_2].to_i}
+                  end
               # DEPRECATED: Since we moved prices to items, but tip stayed
               # on the expense itself, these no longer make sense.
               # when '+' # 32.90 + 3.10

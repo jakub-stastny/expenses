@@ -93,11 +93,11 @@ module Expenses
         puts "<bold>Total:</bold> #{self.report_in_all_currencies(expenses)}".colourise
         # Dividing by 7 is inacurate if the week hasn't finished yet.
         date = expenses.last.date
-        if Date.today.cweek == date.cweek
-          divide_by = (date.wday == 0) ? 7 : date.wday
+        divide_by = if Date.today.cweek == date.cweek
+          (date.wday == 0) ? 7 : date.wday
         else
-          divide_by = 7
-        end
+          7
+                    end
         puts "<bold>Per day:</bold> #{self.report_currencies(expenses) { |amount| amount / divide_by }}".colourise
       end
 
