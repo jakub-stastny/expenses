@@ -30,7 +30,7 @@ module Expenses
 
     def convert(dest_currency, amount)
       unless amount.is_a?(Numeric)
-        raise TypeError.new("Amount for #{base_currency} -> #{dest_currency} conversion has to be a number, ideally integer, was #{amount.inspect}.")
+        raise TypeError, "Amount for #{base_currency} -> #{dest_currency} conversion has to be a number, ideally integer, was #{amount.inspect}."
       end
 
       return amount if @base_currency == dest_currency

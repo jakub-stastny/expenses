@@ -61,8 +61,7 @@ module Expenses
 
       unless required_keys.all? { |required_key| data.key?(required_key) }
         missing_keys = required_keys - data.keys
-        raise ArgumentError.new(
-          "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}")
+        raise ArgumentError, "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}"
       end
 
       loggable_item_class = self.types[data[:type].to_sym] || raise("Unknown type #{data[:type]}.")

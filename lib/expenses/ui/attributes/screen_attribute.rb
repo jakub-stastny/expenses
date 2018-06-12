@@ -101,7 +101,7 @@ module Expenses
         value = app.readline("New value:") do |key|
           if key.key_code == 27 # Quit on Escape.
             @was_escape_quitted = true
-            raise QuitError.new
+            raise QuitError
           end
         end
         object.send("#{self.name}=", value) unless @was_escape_quitted

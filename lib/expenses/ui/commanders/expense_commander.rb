@@ -33,7 +33,7 @@ module Expenses
       commander.command('s', 'save') do |commander_window|
         collection << expense
         collection.save
-        raise QuitError.new # Quit the commander.
+        raise QuitError # Quit the commander.
         app.destroy # Quit the app.
 
         puts "\nExpense #{collection.items.last.serialise.inspect} has been saved."

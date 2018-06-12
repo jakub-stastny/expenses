@@ -22,7 +22,7 @@ module Expenses
         when 0 then self.report_balances
         when 2 then self.set_balance(*@args)
         else
-          raise ShowHelpError.new
+          raise ShowHelpError
         end
       end
 

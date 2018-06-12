@@ -48,13 +48,13 @@ module Expenses
 
       commander.command('s', 'save the item') do |commander_window|
         expense.items << item
-        raise QuitError.new # Quit the commander.
+        raise QuitError # Quit the commander.
         # TODO: Display it in the parent window somehow.
         # puts "\nExpense #{@collection.items.last.serialise.inspect} has been saved."
       end
 
       commander.command('q', 'quit adding the item') do |commander_window|
-        raise QuitError.new
+        raise QuitError
       end
 
       commander.loop do |commander, commander_window|

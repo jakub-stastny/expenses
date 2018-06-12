@@ -63,7 +63,7 @@ module Expenses
 
       JSON.parse(File.read(path))
     rescue JSON::ParserError => error
-      raise JSON::ParserError.new("JSON from #{path} cannot be parsed: #{error.message}")
+      raise JSON::ParserError, "JSON from #{path} cannot be parsed: #{error.message}"
     end
 
     def serialise

@@ -33,7 +33,7 @@ module Expenses
       @commander.command([13], "set") do |tag_commander_window|
         # TODO: Use Enter to confirm the selection OR the @buffer, make the other ones like q not setting.
         # TODO: clean the buffer.
-        raise QuitError.new
+        raise QuitError
       end
 
       @commander.default_command do |tag_commander_window, char|
