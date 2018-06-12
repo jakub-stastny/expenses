@@ -42,13 +42,12 @@ module Expenses
           commander_window.write("    -  <red>#{Utils.format_cents_to_money(item.total)}</red> #{[item.desc, str].join(' ')} <green>#{item.tag}</green>\n")
           commander_window.write("             #{item.note}\n") if item.note
 
-          if item.vale_la_pena
-            tag = case item.vale_la_pena
-                  when 0 then 'green'
-                  when 1 then 'red'
-                  when 2 then 'yellow' end
-            commander_window.write("             <#{tag}>#{SerialisableItem::VALE_LA_PENA_LABELS[item.vale_la_pena]}</#{tag}>\n")
-          end
+          next unless item.vale_la_pena
+          tag = case item.vale_la_pena
+                when 0 then 'green'
+                when 1 then 'red'
+                when 2 then 'yellow' end
+          commander_window.write("             <#{tag}>#{SerialisableItem::VALE_LA_PENA_LABELS[item.vale_la_pena]}</#{tag}>\n")
         end
 
         if @expense.items.length >= 2

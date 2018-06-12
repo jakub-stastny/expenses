@@ -14,10 +14,9 @@ module Expenses
     end
 
     def attribute_values_with_counts(list, attribute = :tag)
-      attributes_with_counts = list.reduce(Hash.new) do |buffer, item|
+      attributes_with_counts = list.each_with_object(Hash.new) do |item, buffer|
         buffer[item.send(attribute)] ||= 0
         buffer[item.send(attribute)] += 1
-        buffer
       end
 
       attributes_with_counts.sort_by { |(_, count)| count }.reverse

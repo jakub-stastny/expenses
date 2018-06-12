@@ -40,11 +40,10 @@ module Expenses
           puts "<green>Week #{monday.strftime('%d/%m')} – #{(monday + 7).strftime('%d/%m')}</green>:".colourise(bold: true)
           self.report(lines); puts
 
-          if monday.month != (monday + 7).month
-            expenses = @expenses.select { |expense| expense.date.year == monday.year && expense.date.month == monday.month }
-            puts "<blue>#{monday.strftime('%B')} #{monday.year}</blue>:".colourise(bold: true)
-            self.report(expenses)
-          end
+          next unless monday.month != (monday + 7).month
+          expenses = @expenses.select { |expense| expense.date.year == monday.year && expense.date.month == monday.month }
+          puts "<blue>#{monday.strftime('%B')} #{monday.year}</blue>:".colourise(bold: true)
+          self.report(expenses)
         end
       end
 
