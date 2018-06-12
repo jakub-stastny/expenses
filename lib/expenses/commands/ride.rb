@@ -70,7 +70,7 @@ module Expenses
         locations = expenses.map(&:location).uniq.compact
         @prompt.prompt(:where, 'Where', options: locations, default: expenses.last.location) do
           clean_value do |raw_value|
-            (not raw_value.empty?) ? self.self_or_retrieve_by_index(locations, raw_value) : expenses.last.location
+            !raw_value.empty? ? self.self_or_retrieve_by_index(locations, raw_value) : expenses.last.location
           end
 
           validate_clean_value do |clean_value|

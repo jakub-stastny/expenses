@@ -7,7 +7,7 @@ describe Expenses::Expense do
     {'date' => '2017-06-16',
      'type'     => 'essential',
      'desc'     => '10 kg worth of rice',
-     'total'    => 12000, # In cents.
+     'total'    => 12_000, # In cents.
      'currency' => 'CZK',
      'location' => 'PT'}
   end
@@ -82,7 +82,7 @@ describe Expenses::Expense do
       {date: Date.parse('2017-06-16'),
        type: 'essential',
        desc: '10 kg worth of rice',
-       total: 12000,
+       total: 12_000,
        currency: 'CZK',
        location: 'PT'}
     end
@@ -218,7 +218,7 @@ describe Expenses::Expense do
         date: Date.parse(data['date']),
         type: 'essential',
         desc: '10 kg worth of rice',
-        total: 12000,
+        total: 12_000,
         currency: 'CZK',
         location: 'PT'
       })
@@ -231,7 +231,7 @@ describe Expenses::Expense do
         date: Date.parse(data['date']),
         type: 'essential',
         desc: '10 kg worth of rice',
-        total: 12000,
+        total: 12_000,
         currency: 'CZK',
         location: 'PT'
       })
@@ -243,7 +243,7 @@ describe Expenses::Expense do
       {date: Date.parse('2017-06-16'),
        type: 'essential',
        desc: '10 kg worth of rice',
-       total: 12000,
+       total: 12_000,
        currency: 'CZK',
        location: 'PT'}
     end

@@ -101,7 +101,7 @@ module Expenses
         currencies = expenses.map(&:currency).uniq
         @prompt.prompt(:currency, 'Currency code', options: currencies, default: expenses.last.currency) do
           clean_value do |raw_value|
-            (not raw_value.empty?) ? self.self_or_retrieve_by_index(currencies, raw_value) : expenses.last.currency
+            !raw_value.empty? ? self.self_or_retrieve_by_index(currencies, raw_value) : expenses.last.currency
           end
 
           validate_clean_value do |clean_value|
@@ -137,7 +137,7 @@ module Expenses
         locations = expenses.map(&:location).uniq.compact
         @prompt.prompt(:location, 'Location', options: locations, default: expenses.last.location) do
           clean_value do |raw_value|
-            (not raw_value.empty?) ? self.self_or_retrieve_by_index(locations, raw_value) : expenses.last.location
+            !raw_value.empty? ? self.self_or_retrieve_by_index(locations, raw_value) : expenses.last.location
           end
 
           validate_clean_value do |clean_value|
