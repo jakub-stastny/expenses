@@ -45,9 +45,9 @@ module Expenses
       end
 
       def expenses_for_review
-        expenses.select { |expense|
+        expenses.select do |expense|
           expense.type == 'long_term' && expense.metadata.reviews.last[:date] < 3.months.ago
-        }
+        end
       end
     end
   end

@@ -49,9 +49,9 @@ module Expenses
 
       if data[:items] # TODO: move into expense.
         data[:items].map! do |item_data|
-          Item.deserialise(item_data.reduce(Hash.new) do |result, (key, value)|
+          Item.deserialise(item_data.reduce(Hash.new) { |result, (key, value)|
             result.merge(key.to_sym => value)
-          end)
+          })
         end
       end
 
