@@ -90,9 +90,7 @@ module Expenses
 
         object.send("#{self.name}=", values[next_index])
 
-        if @after_update_block
-          @after_update_block.call(collection, object)
-        end
+        @after_update_block.call(collection, object) if @after_update_block
       end
 
       callable.call(app, object, char)

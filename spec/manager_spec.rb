@@ -2,7 +2,7 @@
 
 require 'expenses/collection'
 
-describe Expenses::collection do
+describe Expenses.collection do
   let(:data_file_path) do
     'spec/data/expenses.json'
   end

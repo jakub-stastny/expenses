@@ -17,9 +17,7 @@ module Expenses
         if command == 'd' || command == 'c'
           expense.date -= 1
         else
-          unless expense.date == Date.today
-            expense.date += 1
-          end
+          expense.date += 1 unless expense.date == Date.today
         end
       end
 
@@ -36,9 +34,7 @@ module Expenses
 
       attribute.after_update do |collection, expense|
         location = expense.location
-        if location.casecmp('online').zero?
-          raise 'TODO: I had this logic somewhere.'
-        end
+        raise 'TODO: I had this logic somewhere.' if location.casecmp('online').zero?
 
         last_same_location_expense = collection.expenses.reverse.find do |expense|
           expense.location == location

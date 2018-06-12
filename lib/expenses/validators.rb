@@ -21,17 +21,13 @@ module Expenses
     end
 
     def validate_desc(desc)
-      unless desc.is_a?(String)
-        raise TypeError.new("Description has to be a string.")
-      end
+      raise TypeError.new("Description has to be a string.") unless desc.is_a?(String)
 
       desc
     end
 
     def validate_amount_in_cents(amount)
-      unless amount.integer?
-        raise TypeError.new("Amount has to be a round number.")
-      end
+      raise TypeError.new("Amount has to be a round number.") unless amount.integer?
 
       amount
     end
@@ -61,9 +57,7 @@ module Expenses
     end
 
     def validate_vale_la_pena(value)
-      unless [nil, 0, 1, 2].include?(value)
-        raise "vale_la_pena : #{value.inspect}"
-      end
+      raise "vale_la_pena : #{value.inspect}" unless [nil, 0, 1, 2].include?(value)
 
       value
     end

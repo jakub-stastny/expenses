@@ -64,16 +64,12 @@ module Expenses
 
     def set_next_attribute
       index = self.attributes.index(@selected_attribute)
-      if self.attributes[index + 1]
-        @selected_attribute = self.attributes[index + 1]
-      end
+      @selected_attribute = self.attributes[index + 1] if self.attributes[index + 1]
     end
 
     def set_previous_attribute
       index = self.attributes.index(@selected_attribute)
-      if index > 0
-        @selected_attribute = self.attributes[index - 1]
-      end
+      @selected_attribute = self.attributes[index - 1] if index > 0
     end
 
     def set_status_line(commander, commander_window, last_run_message)
