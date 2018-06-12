@@ -81,9 +81,7 @@ module Expenses
             convert_money_to_cents(raw_value)
           end
 
-          validate_clean_value do |clean_value|
-            clean_value.integer?
-          end
+          validate_clean_value(&:integer?)
         end
       end
 
@@ -122,9 +120,7 @@ module Expenses
 
         @prompt.set_completion_proc(comp) do
           @prompt.prompt(:tag, 'Tag', help: 'use tab completion') do
-            clean_value do |raw_value|
-              raw_value.strip
-            end
+            clean_value(&:strip)
 
             validate_clean_value do |clean_value|
               clean_value.match(/^#[a-z_]+$/)

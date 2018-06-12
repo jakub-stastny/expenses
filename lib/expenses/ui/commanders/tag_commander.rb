@@ -46,7 +46,7 @@ module Expenses
       end
 
       @commander.loop do |tag_commander, tag_commander_window|
-        values = self.cache[:"values_for_tag"] = qe.tags
+        values = self.cache[:values_for_tag] = qe.tags
 
         values.each.with_index do |tag, index|
           if item_or_expense.tag == tag

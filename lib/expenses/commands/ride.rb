@@ -59,9 +59,7 @@ module Expenses
             convert_money_to_cents(raw_value)
           end
 
-          validate_clean_value do |clean_value|
-            clean_value.integer?
-          end
+          validate_clean_value(&:integer?)
         end
       end
 
