@@ -50,11 +50,11 @@ module Expenses
     def initialize(date:, desc:, tip: 0, location:, currency:, note: nil,
                    payment_method:, vale_la_pena: nil, fee: 0, items: Array.new, rates: Hash.new)
 
-      @desc = validate_desc(desc)
-      @tip  = validate_amount_in_cents(tip)
+      @desc         = validate_desc(desc)
+      @tip          = validate_amount_in_cents(tip)
       @vale_la_pena = validate_integer(vale_la_pena) if vale_la_pena
-      @fee  = validate_amount_in_cents(fee) if fee
-      @items = items
+      @fee          = validate_amount_in_cents(fee) if fee
+      @items        = items
 
       super(date: date, location: location,
             currency: currency, payment_method: payment_method,
