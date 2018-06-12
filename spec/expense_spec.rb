@@ -60,7 +60,7 @@ describe Expenses::Expense do
     end
 
     it "raises an error if there are unexpected keys" do
-      data.merge!('something_unexpected' => :yes)
+      data['something_unexpected'] = :yes
 
       expect { described_class.deserialise(data) }.to raise_error(
         ArgumentError, 'Unexpected key(s): [:something_unexpected]')
