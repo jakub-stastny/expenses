@@ -29,7 +29,7 @@ module Expenses
     end
 
     def help(value, is_selected)
-      result = if @attributes[:help] && @attributes[:help].respond_to?(:call)
+      result = if @attributes[:help]&.respond_to?(:call)
         @attributes[:help].call(value, is_selected)
       elsif @attributes[:help]
         @attributes[:help]
@@ -90,7 +90,7 @@ module Expenses
 
         object.send("#{self.name}=", values[next_index])
 
-        @after_update_block.call(collection, object) if @after_update_block
+        @after_update_block&.call(collection, object)
       end
 
       callable.call(app, object, char)

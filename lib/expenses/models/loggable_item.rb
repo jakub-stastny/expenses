@@ -47,12 +47,10 @@ module Expenses
         result.merge(key.to_sym => value)
       end
 
-      if data[:items] # TODO: move into expense.
-        data[:items].map! do |item_data|
+      data[:items]&.map! do |item_data| # TODO: Move into expense.
           Item.deserialise(item_data.reduce(Hash.new) { |result, (key, value)|
             result.merge(key.to_sym => value)
           })
-        end
       end
 
       # The following would happen anyway, we're only providing a better message.
