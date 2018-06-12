@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'open-uri'
 require 'socket' # So we can rescue from SocketError. One would expect this to

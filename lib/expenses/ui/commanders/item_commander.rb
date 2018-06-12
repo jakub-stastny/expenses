@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'refined-refinements/colours'
 require 'expenses/models/item'
 require 'expenses/commands/lib/common_prompts'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Expenses
   module Utils
     def self.balance_for(collection, payment_method, currency = nil)

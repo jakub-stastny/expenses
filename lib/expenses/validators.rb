@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Expenses
   module Validators
     def validate_date(date_or_date_string)

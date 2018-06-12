@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Expenses
   class CommanderMode
     def run(app, commander, collection, object, screen)

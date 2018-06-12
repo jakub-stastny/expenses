@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'refined-refinements/colours'
 
 # 1. Review and correct balances, either by adding missing items or calling BalanceCommand.

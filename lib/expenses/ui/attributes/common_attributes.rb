@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'expenses/ui/attributes/screen_attribute'
 
 module Expenses

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'expenses/collection'
 
 describe Expenses::collection do

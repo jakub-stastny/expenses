@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'refined-refinements/cli/prompt'
 require 'expenses/commands/lib/common_prompts'
 

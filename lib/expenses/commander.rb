@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'expenses/models/expense'
 require 'expenses/collection'
 require 'refined-refinements/cli/commander'

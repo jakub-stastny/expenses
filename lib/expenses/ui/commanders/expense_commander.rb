@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'refined-refinements/colours'
 require 'expenses/ui/commanders/commander_mode'
 require 'expenses/ui/screens/item_screen'

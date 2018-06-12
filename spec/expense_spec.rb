@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'expenses/models/expense'
 
 describe Expenses::Expense do

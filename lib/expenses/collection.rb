@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'json'
 require 'expenses/models/loggable_item'
 require 'expenses/models/expense'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'expenses/models/serialisable_item'
 
 module Expenses

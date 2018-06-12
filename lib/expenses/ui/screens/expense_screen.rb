@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'refined-refinements/colours'
 require 'expenses/ui/screens/inspect_screen'
 require 'expenses/ui/attributes/expense_screen_attributes'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Expenses
   module Commands
     class ConsoleCommand < RR::Command

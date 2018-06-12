@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Expenses
   class InspectScreenAttribute
     attr_reader :name, :attributes

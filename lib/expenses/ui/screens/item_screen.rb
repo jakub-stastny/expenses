@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'expenses/ui/screens/inspect_screen'
 require 'expenses/ui/attributes/item_screen_attributes'
 

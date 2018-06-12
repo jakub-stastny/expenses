@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'refined-refinements/cli/prompt'
 
 module Expenses
