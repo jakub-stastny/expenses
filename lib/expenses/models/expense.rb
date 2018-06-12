@@ -57,8 +57,8 @@ module Expenses
       @items = items
 
       super(date: date, location: location,
-        currency: currency, payment_method: payment_method,
-        note: note, rates: rates)
+            currency: currency, payment_method: payment_method,
+            note: note, rates: rates)
     end
 
     self.attributes.each do |attribute|
@@ -76,7 +76,7 @@ module Expenses
     def initialize(date:, total:, location:, currency:, payment_method:, note: nil, total_eur: nil, rates: Hash.new)
       @total = validate_amount_in_cents(total)
       super(date: date, location: location, currency: currency,
-        payment_method: payment_method, note: note, rates: rates)
+            payment_method: payment_method, note: note, rates: rates)
     end
 
     self.attributes.each do |attribute|
