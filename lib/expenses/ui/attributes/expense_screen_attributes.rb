@@ -36,7 +36,7 @@ module Expenses
 
       attribute.after_update do |collection, expense|
         location = expense.location
-        if location.downcase == 'online'
+        if location.casecmp('online').zero?
           raise 'TODO: I had this logic somewhere.'
         end
 

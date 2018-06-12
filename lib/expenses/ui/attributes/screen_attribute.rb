@@ -81,7 +81,7 @@ module Expenses
         values = @cycle_values_block.call(collection, object)
         current_value = object.send(self.name)
 
-        if ('A'..'Z').include?(char)
+        if ('A'..'Z').cover?(char)
           next_index = (values.index(current_value) || 1) - 1
         else
           next_index = (values.index(current_value) || -1) + 1
