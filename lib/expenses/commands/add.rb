@@ -104,7 +104,7 @@ module Expenses
         # TODO: Cache exchange rates to all currencies.
 
         qe = QueryEngine.new(@collection)
-        items_total = qe.days_items(expense.date).select { |expense| expense.tag != '#long_term' }.sum(&:total)
+        items_total = qe.days_items(expense.date).reject { |expense| expense.tag == '#long_term' }.sum(&:total)
         tip_and_fee_total = qe.days_expenses(expense.date).sum { |expense| expense.tip + expense.fee }
 
         day_total = items_total + tip_and_fee_total

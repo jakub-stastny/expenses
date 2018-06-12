@@ -6,7 +6,7 @@ module Expenses
   class SerialisableItem
     include Validators
 
-    VALE_LA_PENA_LABELS = ['yes', 'no', 'too expensive']
+    VALE_LA_PENA_LABELS = ['yes', 'no', 'too expensive'].freeze
 
     def self.attributes
       @attributes ||= self.instance_method(:initialize).parameters.map(&:last)

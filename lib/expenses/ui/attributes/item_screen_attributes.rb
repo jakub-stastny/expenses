@@ -39,6 +39,6 @@ module Expenses
         #   end
         # end
       })
-    ]
+    ].freeze
   end
 end

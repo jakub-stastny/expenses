@@ -82,6 +82,6 @@ module Expenses
       CommonAttributes.note,
       CommonAttributes.tag,
       CommonAttributes.vale_la_pena
-    ]
+    ].freeze
   end
 end
