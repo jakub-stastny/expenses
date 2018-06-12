@@ -59,7 +59,7 @@ module Expenses
       required_keys = self.instance_method(:initialize).parameters[0..-2].
         select { |type, name| type == :keyreq }.map(&:last)
 
-      unless required_keys.all? { |required_key| data.has_key?(required_key) }
+      unless required_keys.all? { |required_key| data.key?(required_key) }
         missing_keys = required_keys - data.keys
         raise ArgumentError.new(
           "Expense #{data.inspect} has the following key(s) missing: #{missing_keys.inspect}")
